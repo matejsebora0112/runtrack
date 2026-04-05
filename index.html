@@ -271,6 +271,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
           </div>
         </div>
 
+        <div id="f-gym" style="display:none"></div>
+
         <div style="margin-bottom:14px">
           <label class="fl">Spálené kalórie (kcal)</label>
           <input class="fi" type="number" id="ikcal" placeholder="300" min="0" style="margin:0">
@@ -572,7 +574,6 @@ function setAddActivity(a){
   document.getElementById('inote').placeholder=actNotes[a];
   document.getElementById('f-run').style.display=a==='run'?'block':'none';
   document.getElementById('f-bike').style.display=a==='bike'?'block':'none';
-  // reset pace when switching
   if(a!=='run')document.getElementById('ipace').value='';
 }
 
