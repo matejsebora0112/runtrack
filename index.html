@@ -585,56 +585,38 @@ function calcPace(){
 }
 
 async function addRun(){
-  const date=document.getElementById('id').value,km=parseFloat(document.getElementById('ikm').value);
+  const date=document.getElementById('id').value;
   const time=(parseFloat(document.getElementById('ih').value)||0)*60+(parseFloat(document.getElementById('im').value)||0);
-  const kcal=parseFloat(document.getElementById('ikcal').value)||0,pace=document.getElementById('ipace').value,note=document.getElementById('inote').value;
-  if(!date||!km){toast('Vyplň dátum a vzdialenosť!');return;}
-  const btn=document.getElementById('sbtn');btn.disabled=true;btn.innerHTML='<span class="loader" style="border-color:rgba(255,255,255,.3);border-top-color:#fff"></span> Ukladám...';
+  const kcal=parseFloat(document.getElementById('ikcal').value)||0;
+  const note=document.getElementById('inote').value;
+  if(!date){toast('Vyplň dátum!');return;}
+
+  let km=0,pace='',elev=0;
+  if(addActivity==='run'){
+    km=parseFloat(document.getElementById('ikm').value)||0;
+    pace=document.getElementById('ipace').value;
+    if(!km){toast('Vyplň vzdialenosť!');return;}
+  } else if(addActivity==='bike'){
+    km=parseFloat(document.getElementById('ikm-bike').value)||0;
+    elev=parseFloat(document.getElementById('ielev').value)||0;
+    if(!km){toast('Vyplň vzdialenosť!');return;}
+  }
+
+  const btn=document.getElementById('sbtn');
+  btn.disabled=true;
+  btn.innerHTML='<span class="loader" style="border-color:rgba(255,255,255,.3);border-top-color:#fff"></span> Ukladám...';
   try{
-    const s=await api('runs',{method:'POST',body:JSON.stringify({date,km,time,kcal,pace,note,coords:'[]',user_id:user.id,activity:addActivity})});
+    const s=await api('runs',{method:'POST',body:JSON.stringify({date,km,time,kcal,pace,note,coords:'[]',user_id:user.id,activity:addActivity,elev})});
     runs.unshift(s[0]);sync('ok','Synchronizované ✓');
     if(kcal>0){document.getElementById('hkcal').textContent=kcal;document.getElementById('shint').style.display='block';document.getElementById('fkcal').value=kcal;}
-    ['ikm','ih','im','ipace','ikcal','inote'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('id').valueAsDate=new Date();toast('✓ Beh uložený!','green');
+    ['ikm','ikm-bike','ih','im','ipace','ikcal','inote','ielev'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    document.getElementById('id').valueAsDate=new Date();
+    const labels={run:'Beh',bike:'Jazda',gym:'Tréning'};
+    toast('✓ '+labels[addActivity]+' uložený!','green');
   }catch(e){toast('Chyba: '+e.message,'err');}
-  btn.disabled=false;btn.textContent='Uložiť beh →';
+  btn.disabled=false;btn.textContent='Uložiť aktivitu →';
 }
 
-function setActivity(a){
-  currentActivity=a;
-  document.getElementById('act-run').classList.toggle('active',a==='run');
-  document.getElementById('act-bike').classList.toggle('active',a==='bike');
-  document.getElementById('bstart').textContent=a==='run'?'▶ Spustiť beh':'▶ Spustiť jazdu';
-  if(rLine)rLine.setStyle({color:a==='bike'?'#3a8cc4':'#F5C842'});
-}
-
-function initMap(){
-  if(mapR)return;mapR=true;
-  mapO=L.map('map').setView([48.148,17.107],13);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19}).addTo(mapO);
-  rLine=L.polyline([],{color:currentActivity==='bike'?'#3a8cc4':'#F5C842',weight:5,opacity:.9}).addTo(mapO);
-  setTimeout(()=>mapO.invalidateSize(),300);
-  if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>mapO.setView([p.coords.latitude,p.coords.longitude],16),()=>{},{enableHighAccuracy:true,timeout:8000});
-}
-
-function startRun(){
-  if(!navigator.geolocation){toast('GPS nie je dostupné.');return;}
-  lCoords=[];lDist=0;sTime=Date.now();rLine&&rLine.setLatLngs([]);
-  document.getElementById('bstart').style.display='none';document.getElementById('bstop').style.display='inline-flex';
-  document.getElementById('mdot').classList.add('rec');
-  document.getElementById('mst').textContent=currentActivity==='run'?'Nahrávam beh...':'Nahrávam jazdu...';
-  document.getElementById('activity-btns').style.opacity='0.4';
-  document.getElementById('activity-btns').style.pointerEvents='none';
-  if(rLine)rLine.setStyle({color:currentActivity==='bike'?'#3a8cc4':'#F5C842'});
-  tInt=setInterval(()=>{const e=Math.floor((Date.now()-sTime)/1000);document.getElementById('lvt').textContent=Math.floor(e/60)+':'+(e%60<10?'0':'')+e%60;},1000);
-  wid=navigator.geolocation.watchPosition(pos=>{
-    const lat=pos.coords.latitude,lng=pos.coords.longitude;
-    if(lCoords.length>0){const p=lCoords[lCoords.length-1];lDist+=hav(p[0],p[1],lat,lng);}
-    lCoords.push([lat,lng]);rLine.setLatLngs(lCoords);mapO.panTo([lat,lng]);
-    document.getElementById('lvkm').textContent=lDist.toFixed(2);
-    if(lDist>0){const e=(Date.now()-sTime)/60000;const p=e/lDist;const pm=Math.floor(p);const ps=Math.round((p-pm)*60);document.getElementById('lvp').textContent=pm+':'+(ps<10?'0':'')+ps;}
-  },e=>console.warn(e),{enableHighAccuracy:true,maximumAge:2000,timeout:10000});
-}
 
 async function stopRun(){
   navigator.geolocation.clearWatch(wid);clearInterval(tInt);
