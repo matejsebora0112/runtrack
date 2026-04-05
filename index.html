@@ -222,44 +222,74 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
   <main class="main">
     <!-- ADD -->
     <div id="p-add" class="page active">
-      <div class="ph"><h1 class="pt">Pridať beh</h1><p class="ps">Zaznamenaj nový tréning ručne</p></div>
-      <div class="card">
-        <div class="ct">Detaily behu</div>
-        <div class="r2">
-          <div><label class="fl">Dátum</label><input class="fi" type="date" id="id" style="margin:0"></div>
-          <div><label class="fl">Vzdialenosť (km)</label><input class="fi" type="number" id="ikm" placeholder="5.0" step="0.1" min="0" style="margin:0"></div>
+      <div class="ph"><h1 class="pt">Pridať aktivitu</h1><p class="ps">Zaznamenaj nový tréning ručne</p></div>
+
+      <div class="act-tiles">
+        <div class="act-tile active" id="tile-run" onclick="setAddActivity('run')">
+          <div class="act-tile-ico">🏃</div>
+          <div class="act-tile-lbl">Beh</div>
         </div>
+        <div class="act-tile" id="tile-bike" onclick="setAddActivity('bike')">
+          <div class="act-tile-ico">🚴</div>
+          <div class="act-tile-lbl">Bike</div>
+        </div>
+        <div class="act-tile" id="tile-gym" onclick="setAddActivity('gym')">
+          <div class="act-tile-ico">🏋️</div>
+          <div class="act-tile-lbl">Gym</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ct" id="act-detail-title">Detaily behu</div>
+
         <div style="margin-bottom:14px">
-          <label class="fl">Čas behu</label>
+          <label class="fl">Dátum</label>
+          <input class="fi" type="date" id="id" style="margin:0">
+        </div>
+
+        <div style="margin-bottom:14px">
+          <label class="fl">Čas aktivity</label>
           <div style="display:flex;align-items:center;gap:8px">
             <input class="fi" type="number" id="ih" placeholder="0" min="0" max="23" style="width:80px;text-align:center;flex-shrink:0;margin:0">
-            <span style="color:var(--text2);font-weight:500;flex-shrink:0;font-size:13px">hod</span>
+            <span style="color:var(--text2);font-weight:500;flex-shrink:0">hod</span>
             <input class="fi" type="number" id="im" placeholder="0" min="0" max="59" style="width:80px;text-align:center;flex-shrink:0;margin:0">
-            <span style="color:var(--text2);font-weight:500;flex-shrink:0;font-size:13px">min</span>
+            <span style="color:var(--text2);font-weight:500;flex-shrink:0">min</span>
           </div>
         </div>
-        <div class="r2">
-          <div><label class="fl">Pace (min/km)</label><input class="fi" type="text" id="ipace" placeholder="auto" readonly style="margin:0"></div>
-          <div><label class="fl">Kalórie (kcal)</label><input class="fi" type="number" id="ikcal" placeholder="300" min="0" style="margin:0"></div>
+
+        <div id="f-run">
+          <div class="r2" style="margin-bottom:14px">
+            <div><label class="fl">Vzdialenosť (km)</label><input class="fi" type="number" id="ikm" placeholder="5.0" step="0.1" min="0" style="margin:0"></div>
+            <div><label class="fl">Pace (min/km)</label><input class="fi" type="text" id="ipace" placeholder="auto" readonly style="margin:0"></div>
+          </div>
         </div>
+
+        <div id="f-bike" style="display:none">
+          <div class="r2" style="margin-bottom:14px">
+            <div><label class="fl">Vzdialenosť (km)</label><input class="fi" type="number" id="ikm-bike" placeholder="20.0" step="0.1" min="0" style="margin:0"></div>
+            <div><label class="fl">Prevýšenie (m)</label><input class="fi" type="number" id="ielev" placeholder="150" min="0" style="margin:0"></div>
+          </div>
+        </div>
+
         <div style="margin-bottom:14px">
-          <label class="fl">Aktivita</label>
-          <div style="display:flex;gap:8px">
-            <button class="pill active" id="madd-run" onclick="setAddActivity('run')">🏃 Beh</button>
-            <button class="pill" id="madd-bike" onclick="setAddActivity('bike')">🚴 Bike</button>
-          </div>
+          <label class="fl">Spálené kalórie (kcal)</label>
+          <input class="fi" type="number" id="ikcal" placeholder="300" min="0" style="margin:0">
         </div>
-        <label class="fl">Poznámka</label>
-        <input class="fi" type="text" id="inote" placeholder="Ranný beh, park..." style="margin-bottom:0">
-        <button class="btn bp bfull" id="sbtn" onclick="addRun()">Uložiť beh →</button>
+
+        <div style="margin-bottom:0">
+          <label class="fl">Poznámka</label>
+          <input class="fi" type="text" id="inote" placeholder="Ranný beh, park..." style="margin-bottom:0">
+        </div>
+
+        <button class="btn bp bfull" id="sbtn" onclick="addRun()">Uložiť aktivitu →</button>
       </div>
       <div id="shint" style="display:none" class="card">
-        <p style="font-size:13px;color:var(--text2)">Beh uložený! ☁️ Spálil si <span id="hkcal" style="color:var(--green);font-family:'DM Mono',monospace"></span> kcal.
+        <p style="font-size:13px;color:var(--text2)">Aktivita uložená! ☁️ Spálil si <span id="hkcal" style="color:var(--green);font-family:'DM Mono',monospace"></span> kcal.
         <span style="cursor:pointer;color:var(--green);text-decoration:underline" onclick="go('food');doFood()">Pozri odporúčanie jedla →</span></p>
       </div>
     </div>
 
-    <!-- MAP -->
+        <!-- MAP -->
     <div id="p-map" class="page">
       <div class="ph"><h1 class="pt">GPS sledovanie</h1><p class="ps">Zaznamenaj trasu v reálnom čase</p></div>
       <div class="card">
