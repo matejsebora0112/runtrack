@@ -226,6 +226,13 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
           <div><label class="fl">Pace (min/km)</label><input class="fi" type="text" id="ipace" placeholder="auto" readonly style="margin:0"></div>
           <div><label class="fl">Kalórie (kcal)</label><input class="fi" type="number" id="ikcal" placeholder="300" min="0" style="margin:0"></div>
         </div>
+        <div style="margin-bottom:14px">
+          <label class="fl">Aktivita</label>
+          <div style="display:flex;gap:8px">
+            <button class="pill active" id="madd-run" onclick="setAddActivity('run')">🏃 Beh</button>
+            <button class="pill" id="madd-bike" onclick="setAddActivity('bike')">🚴 Bike</button>
+          </div>
+        </div>
         <label class="fl">Poznámka</label>
         <input class="fi" type="text" id="inote" placeholder="Ranný beh, park..." style="margin-bottom:0">
         <button class="btn bp bfull" id="sbtn" onclick="addRun()">Uložiť beh →</button>
@@ -249,8 +256,12 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
           <div class="ls"><div class="lv" id="lvp">--:--</div><div class="ll">pace</div></div>
         </div>
         <div id="map"></div>
+        <div style="display:flex;gap:8px;margin-bottom:1rem" id="activity-btns">
+          <button class="pill active" id="act-run" onclick="setActivity('run')">🏃 Beh</button>
+          <button class="pill" id="act-bike" onclick="setActivity('bike')">🚴 Bike</button>
+        </div>
         <div style="display:flex;gap:10px;margin-top:1rem">
-          <button class="btn bp" id="bstart" onclick="startRun()">▶ Spustiť beh</button>
+          <button class="btn bp" id="bstart" onclick="startRun()">▶ Spustiť</button>
           <button class="btn bd" id="bstop" style="display:none" onclick="stopRun()">■ Zastaviť &amp; uložiť</button>
         </div>
         <p style="font-size:11px;color:var(--text3);margin-top:.75rem;font-family:'DM Mono',monospace">GPS vyžaduje povolenie · OpenStreetMap</p>
@@ -329,7 +340,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 const SB='https://qtuyhfurupzzzoyogkbm.supabase.co';
 const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0dXloZnVydXB6enpveW9na2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTAxMTUsImV4cCI6MjA5MDg4NjExNX0.FYakZ5XtjXcEoUV7WinUl1MnJtJG8tJIF814HcBbMyk';
 let runs=[],user=null,token=null,amode='login';
-let mapO=null,rLine=null,wid=null,sTime=null,tInt=null,lCoords=[],lDist=0,mapR=false;
+let mapO=null,rLine=null,wid=null,sTime=null,tInt=null,lCoords=[],lDist=0,mapR=false,currentActivity='run';
 let cPer=7,cDiet='normal',fOff=0,rOff=0,rTyp='slany';
 
 const FOODS=[
@@ -502,6 +513,13 @@ function go(p){
 
 function toast(msg,type=''){const e=document.getElementById('toast');e.textContent=msg;e.className='toast show '+type;setTimeout(()=>e.className='toast',3000);}
 
+let addActivity='run';
+function setAddActivity(a){
+  addActivity=a;
+  document.getElementById('madd-run').classList.toggle('active',a==='run');
+  document.getElementById('madd-bike').classList.toggle('active',a==='bike');
+}
+
 function calcPace(){
   const km=parseFloat(document.getElementById('ikm').value);
   const tot=(parseFloat(document.getElementById('ih').value)||0)*60+(parseFloat(document.getElementById('im').value)||0);
@@ -516,7 +534,7 @@ async function addRun(){
   if(!date||!km){toast('Vyplň dátum a vzdialenosť!');return;}
   const btn=document.getElementById('sbtn');btn.disabled=true;btn.innerHTML='<span class="loader" style="border-color:rgba(255,255,255,.3);border-top-color:#fff"></span> Ukladám...';
   try{
-    const s=await api('runs',{method:'POST',body:JSON.stringify({date,km,time,kcal,pace,note,coords:'[]',user_id:user.id})});
+    const s=await api('runs',{method:'POST',body:JSON.stringify({date,km,time,kcal,pace,note,coords:'[]',user_id:user.id,activity:addActivity})});
     runs.unshift(s[0]);sync('ok','Synchronizované ✓');
     if(kcal>0){document.getElementById('hkcal').textContent=kcal;document.getElementById('shint').style.display='block';document.getElementById('fkcal').value=kcal;}
     ['ikm','ih','im','ipace','ikcal','inote'].forEach(id=>document.getElementById(id).value='');
@@ -525,11 +543,19 @@ async function addRun(){
   btn.disabled=false;btn.textContent='Uložiť beh →';
 }
 
+function setActivity(a){
+  currentActivity=a;
+  document.getElementById('act-run').classList.toggle('active',a==='run');
+  document.getElementById('act-bike').classList.toggle('active',a==='bike');
+  document.getElementById('bstart').textContent=a==='run'?'▶ Spustiť beh':'▶ Spustiť jazdu';
+  if(rLine)rLine.setStyle({color:a==='bike'?'#3a8cc4':'#F5C842'});
+}
+
 function initMap(){
   if(mapR)return;mapR=true;
   mapO=L.map('map').setView([48.148,17.107],13);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19}).addTo(mapO);
-  rLine=L.polyline([],{color:'#F5C842',weight:5,opacity:.9}).addTo(mapO);
+  rLine=L.polyline([],{color:currentActivity==='bike'?'#3a8cc4':'#F5C842',weight:5,opacity:.9}).addTo(mapO);
   setTimeout(()=>mapO.invalidateSize(),300);
   if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>mapO.setView([p.coords.latitude,p.coords.longitude],16),()=>{},{enableHighAccuracy:true,timeout:8000});
 }
@@ -538,7 +564,11 @@ function startRun(){
   if(!navigator.geolocation){toast('GPS nie je dostupné.');return;}
   lCoords=[];lDist=0;sTime=Date.now();rLine&&rLine.setLatLngs([]);
   document.getElementById('bstart').style.display='none';document.getElementById('bstop').style.display='inline-flex';
-  document.getElementById('mdot').classList.add('rec');document.getElementById('mst').textContent='Nahrávam trasu...';
+  document.getElementById('mdot').classList.add('rec');
+  document.getElementById('mst').textContent=currentActivity==='run'?'Nahrávam beh...':'Nahrávam jazdu...';
+  document.getElementById('activity-btns').style.opacity='0.4';
+  document.getElementById('activity-btns').style.pointerEvents='none';
+  if(rLine)rLine.setStyle({color:currentActivity==='bike'?'#3a8cc4':'#F5C842'});
   tInt=setInterval(()=>{const e=Math.floor((Date.now()-sTime)/1000);document.getElementById('lvt').textContent=Math.floor(e/60)+':'+(e%60<10?'0':'')+e%60;},1000);
   wid=navigator.geolocation.watchPosition(pos=>{
     const lat=pos.coords.latitude,lng=pos.coords.longitude;
@@ -552,13 +582,16 @@ function startRun(){
 async function stopRun(){
   navigator.geolocation.clearWatch(wid);clearInterval(tInt);
   document.getElementById('bstart').style.display='inline-flex';document.getElementById('bstop').style.display='none';
-  document.getElementById('mdot').classList.remove('rec');document.getElementById('mst').textContent='Beh zastavený';
+  document.getElementById('mdot').classList.remove('rec');
+  document.getElementById('mst').textContent=currentActivity==='run'?'Beh zastavený':'Jazda zastavená';
+  document.getElementById('activity-btns').style.opacity='1';
+  document.getElementById('activity-btns').style.pointerEvents='auto';
   if(lDist<0.01){toast('Príliš krátka trasa.');return;}
-  const el=Math.floor((Date.now()-sTime)/60000),kcal=Math.round(lDist*65);
+  const el=Math.floor((Date.now()-sTime)/60000),kcal=Math.round(lDist*(currentActivity==='bike'?35:65));
   const p=el/lDist;const pm=Math.floor(p);const ps=Math.round((p-pm)*60);
   try{
-    const s=await api('runs',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),km:parseFloat(lDist.toFixed(2)),time:el,kcal,pace:pm+':'+(ps<10?'0':'')+ps,note:'GPS beh',coords:JSON.stringify(lCoords),user_id:user.id})});
-    runs.unshift(s[0]);toast('✓ GPS beh — '+lDist.toFixed(2)+' km','green');
+    const s=await api('runs',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),km:parseFloat(lDist.toFixed(2)),time:el,kcal,pace:pm+':'+(ps<10?'0':'')+ps,note:currentActivity==='bike'?'GPS jazda 🚴':'GPS beh 🏃',coords:JSON.stringify(lCoords),user_id:user.id,activity:currentActivity})});
+    runs.unshift(s[0]);toast('✓ '+(currentActivity==='bike'?'Jazda':'Beh')+' — '+lDist.toFixed(2)+' km · '+kcal+' kcal','green');
   }catch(e){toast('Chyba: '+e.message,'err');}
 }
 
@@ -570,7 +603,7 @@ function renderHistory(){
   document.getElementById('hskm').textContent=runs.reduce((a,r)=>a+(r.km||0),0).toFixed(1);
   document.getElementById('hscnt').textContent=runs.length;
   document.getElementById('hskcal').textContent=Math.round(runs.reduce((a,r)=>a+(r.kcal||0),0));
-  el.innerHTML=runs.map((r,i)=>`<div class="rrow" id="rr-${r.id}"><div class="rnum">${runs.length-i}</div><div class="rico">🏃</div><div class="rinfo"><div class="rt">${r.note||'Beh'}</div><div class="rm">${r.date}${r.pace?' · '+r.pace+' min/km':''}${r.time?' · '+r.time+' min':''}</div></div><div class="rr"><div class="rkm">${(r.km||0).toFixed(1)} km</div><div class="rkcal">${r.kcal?r.kcal+' kcal':''}</div></div><button class="delbtn" onclick="delRun('${r.id}')">✕</button></div>`).join('');
+  el.innerHTML=runs.map((r,i)=>`<div class="rrow" id="rr-${r.id}"><div class="rnum">${runs.length-i}</div><div class="rico">${r.activity==='bike'?'🚴':'🏃'}</div><div class="rinfo"><div class="rt">${r.note||'Beh'}</div><div class="rm">${r.date}${r.pace?' · '+r.pace+' min/km':''}${r.time?' · '+r.time+' min':''}</div></div><div class="rr"><div class="rkm">${(r.km||0).toFixed(1)} km</div><div class="rkcal">${r.kcal?r.kcal+' kcal':''}</div></div><button class="delbtn" onclick="delRun('${r.id}')">✕</button></div>`).join('');
 }
 
 async function delRun(id){
