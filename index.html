@@ -210,7 +210,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     </div>
     <div class="sbar"><span class="sd" id="sd"></span><span id="st">...</span></div>
     <div class="nav">
-      <div class="ni active" onclick="go('add')"><span class="nic">＋</span>Nový beh</div>
+      <div class="ni active" onclick="go('add')"><span class="nic">＋</span>Nová aktivita</div>
       <div class="ni" onclick="go('map')"><span class="nic">◎</span>GPS Mapa</div>
       <div class="ni" onclick="go('history')"><span class="nic">≡</span>História</div>
       <div class="ni" onclick="go('charts')"><span class="nic">▦</span>Grafy</div>
@@ -373,7 +373,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 
   <nav class="bnav">
     <div class="bni-row">
-      <button class="bni active" onclick="go('add')"><span class="bnic">＋</span>Beh</button>
+      <button class="bni active" onclick="go('add')"><span class="bnic">＋</span>Aktivita</button>
       <button class="bni" onclick="go('map')"><span class="bnic">◎</span>Mapa</button>
       <button class="bni" onclick="go('history')"><span class="bnic">≡</span>História</button>
       <button class="bni" onclick="go('charts')"><span class="bnic">▦</span>Grafy</button>
@@ -618,6 +618,42 @@ async function addRun(){
   btn.disabled=false;btn.textContent='Uložiť aktivitu →';
 }
 
+
+function setActivity(a){
+  currentActivity=a;
+  document.getElementById('act-run').classList.toggle('active',a==='run');
+  document.getElementById('act-bike').classList.toggle('active',a==='bike');
+  document.getElementById('bstart').textContent=a==='run'?'▶ Spustiť beh':'▶ Spustiť jazdu';
+  if(rLine)rLine.setStyle({color:a==='bike'?'#3a8cc4':'#F5C842'});
+}
+
+function initMap(){
+  if(mapR)return;mapR=true;
+  mapO=L.map('map').setView([48.148,17.107],13);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19}).addTo(mapO);
+  rLine=L.polyline([],{color:currentActivity==='bike'?'#3a8cc4':'#F5C842',weight:5,opacity:.9}).addTo(mapO);
+  setTimeout(()=>mapO.invalidateSize(),300);
+  if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>mapO.setView([p.coords.latitude,p.coords.longitude],16),()=>{},{enableHighAccuracy:true,timeout:8000});
+}
+
+function startRun(){
+  if(!navigator.geolocation){toast('GPS nie je dostupné.');return;}
+  lCoords=[];lDist=0;sTime=Date.now();rLine&&rLine.setLatLngs([]);
+  document.getElementById('bstart').style.display='none';document.getElementById('bstop').style.display='inline-flex';
+  document.getElementById('mdot').classList.add('rec');
+  document.getElementById('mst').textContent=currentActivity==='run'?'Nahrávam beh...':'Nahrávam jazdu...';
+  document.getElementById('activity-btns').style.opacity='0.4';
+  document.getElementById('activity-btns').style.pointerEvents='none';
+  if(rLine)rLine.setStyle({color:currentActivity==='bike'?'#3a8cc4':'#F5C842'});
+  tInt=setInterval(()=>{const e=Math.floor((Date.now()-sTime)/1000);document.getElementById('lvt').textContent=Math.floor(e/60)+':'+(e%60<10?'0':'')+e%60;},1000);
+  wid=navigator.geolocation.watchPosition(pos=>{
+    const lat=pos.coords.latitude,lng=pos.coords.longitude;
+    if(lCoords.length>0){const p=lCoords[lCoords.length-1];lDist+=hav(p[0],p[1],lat,lng);}
+    lCoords.push([lat,lng]);rLine.setLatLngs(lCoords);mapO.panTo([lat,lng]);
+    document.getElementById('lvkm').textContent=lDist.toFixed(2);
+    if(lDist>0){const e=(Date.now()-sTime)/60000;const p=e/lDist;const pm=Math.floor(p);const ps=Math.round((p-pm)*60);document.getElementById('lvp').textContent=pm+':'+(ps<10?'0':'')+ps;}
+  },e=>console.warn(e),{enableHighAccuracy:true,maximumAge:2000,timeout:10000});
+}
 
 async function stopRun(){
   navigator.geolocation.clearWatch(wid);clearInterval(tInt);
