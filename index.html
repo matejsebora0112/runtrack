@@ -715,12 +715,12 @@ function getWeekStart(){
 
 function saveGoal(){
   const v=document.getElementById('goal-input').value;
-  localStorage.setItem('rt_goal_'+currentActivity,v);
+  localStorage.setItem('rt_goal_'+addActivity,v);
   updateGoalBar();
 }
 
 function updateGoalBar(){
-  const act=currentActivity||'run';
+  const act=addActivity||'run';
   const goalEl=document.getElementById('goal-input');
   const unitEl=document.getElementById('goal-unit');
   const barEl=document.getElementById('goal-bar');
