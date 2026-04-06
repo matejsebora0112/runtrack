@@ -489,6 +489,24 @@ let runs=[],user=null,token=null,amode='login';
 let mapO=null,rLine=null,wid=null,sTime=null,tInt=null,lCoords=[],lDist=0,mapR=false,currentActivity='run';
 let cPer=7,cDiet='normal',fOff=0,rOff=0,rTyp='slany';
 
+(async()=>{
+  const h=window.location.hash;
+  if(h&&h.includes('access_token')){
+    const p=new URLSearchParams(h.substring(1)),t=p.get('access_token');
+    if(t){token=t;
+      try{
+        const r=await fetch(SB+'/auth/v1/user',{headers:{'apikey':KEY,'Authorization':'Bearer '+t}});
+        user=await r.json();
+        localStorage.setItem('rt_tok',t);localStorage.setItem('rt_usr',JSON.stringify(user));
+        window.history.replaceState(null,'',window.location.pathname);
+        showApp();return;
+      }catch(e){}
+    }
+  }
+  const t=localStorage.getItem('rt_tok'),u=localStorage.getItem('rt_usr');
+  if(t&&u){token=t;user=JSON.parse(u);showApp();}
+})();
+
 const FOODS=[
   // kcal a bielkoviny sú reálne hodnoty na uvedenú porciu
   {n:'Banán',k:89,a:'1 ks (120g)',note:'Rýchle sacharidy + draslík',p:1,d:['normal','bezlepkova','bezlaktozova']},
