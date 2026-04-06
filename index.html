@@ -128,6 +128,21 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .shuf:hover{border-color:#111;color:#111}
 .rtab{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border2);background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s}
 .rtab.active{background:#111;color:#F5C842;border-color:#111}
+.feeling-btn{flex:1;padding:8px 6px;border-radius:var(--rs);border:1.5px solid var(--border2);background:transparent;cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center}
+.feeling-btn:hover{border-color:#F5C842;color:var(--text)}
+.feeling-btn.active{background:#111;border-color:#111;color:#F5C842}
+.hr-zone{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace}
+.z1{background:#E3F2FD;color:#1565C0}.z2{background:#E8F5E9;color:#2E7D32}.z3{background:#FFF9C4;color:#F9A825}.z4{background:#FFE0B2;color:#E65100}.z5{background:#FFEBEE;color:#C62828}
+.goal-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem}
+.goal-bar-bg{background:var(--bg3);border-radius:20px;height:10px;overflow:hidden;margin:8px 0}
+.goal-bar-fill{background:#F5C842;height:10px;border-radius:20px;transition:width .5s ease}
+.goal-bar-fill.done{background:#2D8A4E}
+.streak-badge{display:flex;align-items:center;gap:8px;background:#111;border-radius:var(--rs);padding:10px 14px;margin-bottom:1.25rem}
+.streak-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#F5C842}
+.streak-lbl{font-size:12px;color:rgba(255,255,255,.6);font-family:'DM Mono',monospace}
+.pr-card{background:var(--bg3);border-radius:var(--rs);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pr-lbl{font-size:12px;color:var(--text2)}
+.pr-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:#F5C842}
 .act-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem}
 .act-tile{background:var(--bg2);border:2px solid var(--border2);border-radius:var(--r);padding:1.25rem 1rem;text-align:center;cursor:pointer;transition:all .2s}
 .act-tile:hover{border-color:#F5C842;transform:translateY(-2px)}
@@ -136,6 +151,21 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .act-tile-lbl{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
 .act-tile.active .act-tile-lbl{color:#F5C842}
 @media(max-width:768px){.act-tile{padding:1rem .75rem}.act-tile-ico{font-size:24px}.act-tile-lbl{font-size:11px}}
+.feeling-btn{flex:1;padding:8px 6px;border-radius:var(--rs);border:1.5px solid var(--border2);background:transparent;cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s;text-align:center}
+.feeling-btn:hover{border-color:#F5C842;color:var(--text)}
+.feeling-btn.active{background:#111;border-color:#111;color:#F5C842}
+.hr-zone{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace}
+.z1{background:#E3F2FD;color:#1565C0}.z2{background:#E8F5E9;color:#2E7D32}.z3{background:#FFF9C4;color:#F9A825}.z4{background:#FFE0B2;color:#E65100}.z5{background:#FFEBEE;color:#C62828}
+.goal-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem}
+.goal-bar-bg{background:var(--bg3);border-radius:20px;height:10px;overflow:hidden;margin:8px 0}
+.goal-bar-fill{background:#F5C842;height:10px;border-radius:20px;transition:width .5s ease}
+.goal-bar-fill.done{background:#2D8A4E}
+.streak-badge{display:flex;align-items:center;gap:8px;background:#111;border-radius:var(--rs);padding:10px 14px;margin-bottom:1.25rem}
+.streak-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#F5C842}
+.streak-lbl{font-size:12px;color:rgba(255,255,255,.6);font-family:'DM Mono',monospace}
+.pr-card{background:var(--bg3);border-radius:var(--rs);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pr-lbl{font-size:12px;color:var(--text2)}
+.pr-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:#F5C842}
 .act-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem}
 .act-tile{background:var(--bg2);border:2px solid var(--border2);border-radius:var(--r);padding:1.25rem 1rem;text-align:center;cursor:pointer;transition:all .2s}
 .act-tile:hover{border-color:#F5C842;transform:translateY(-2px)}
@@ -224,6 +254,34 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <div id="p-add" class="page active">
       <div class="ph"><h1 class="pt">Pridať aktivitu</h1><p class="ps">Zaznamenaj nový tréning ručne</p></div>
 
+      <!-- Streak -->
+      <div class="streak-badge" id="streak-wrap">
+        <div>
+          <div class="streak-num" id="streak-num">0</div>
+          <div class="streak-lbl">DNÍ V RADE 🔥</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-size:11px;color:rgba(255,255,255,.5);font-family:'DM Mono',monospace">Osobné rekordy</div>
+          <div id="pr-summary" style="font-size:12px;color:#F5C842;font-family:'DM Mono',monospace;margin-top:2px">—</div>
+        </div>
+      </div>
+
+      <!-- Weekly goal -->
+      <div class="goal-wrap" id="goal-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px">Týždenný cieľ</div>
+            <div style="font-size:18px;font-weight:700;color:var(--text);margin-top:2px" id="goal-progress-text">0 / 0</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" id="goal-input" placeholder="30" min="0" style="width:70px;text-align:center" class="fi" onchange="saveGoal()" style="margin:0">
+            <span style="font-size:12px;color:var(--text3)" id="goal-unit">km</span>
+          </div>
+        </div>
+        <div class="goal-bar-bg"><div class="goal-bar-fill" id="goal-bar" style="width:0%"></div></div>
+        <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace" id="goal-detail">Nastav týždenný cieľ</div>
+      </div>
+
       <div class="act-tiles">
         <div class="act-tile active" id="tile-run" onclick="setAddActivity('run')">
           <div class="act-tile-ico">🏃</div>
@@ -262,6 +320,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
             <div><label class="fl">Vzdialenosť (km)</label><input class="fi" type="number" id="ikm" placeholder="5.0" step="0.1" min="0" style="margin:0"></div>
             <div><label class="fl">Pace (min/km)</label><input class="fi" type="text" id="ipace" placeholder="auto" readonly style="margin:0"></div>
           </div>
+          <div class="r2" style="margin-bottom:14px">
+            <div><label class="fl">Priem. tepová frekvencia (BPM)</label><input class="fi" type="number" id="ihr-avg-run" placeholder="145" min="0" max="230" style="margin:0"></div>
+            <div><label class="fl">Max. tepová frekvencia (BPM)</label><input class="fi" type="number" id="ihr-max-run" placeholder="175" min="0" max="230" style="margin:0"></div>
+          </div>
         </div>
 
         <div id="f-bike" style="display:none">
@@ -269,18 +331,36 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
             <div><label class="fl">Vzdialenosť (km)</label><input class="fi" type="number" id="ikm-bike" placeholder="20.0" step="0.1" min="0" style="margin:0"></div>
             <div><label class="fl">Prevýšenie (m)</label><input class="fi" type="number" id="ielev" placeholder="150" min="0" style="margin:0"></div>
           </div>
+          <div class="r2" style="margin-bottom:14px">
+            <div><label class="fl">Priem. tepová frekvencia (BPM)</label><input class="fi" type="number" id="ihr-avg-bike" placeholder="130" min="0" max="230" style="margin:0"></div>
+            <div><label class="fl">Max. tepová frekvencia (BPM)</label><input class="fi" type="number" id="ihr-max-bike" placeholder="165" min="0" max="230" style="margin:0"></div>
+          </div>
         </div>
 
-        <div id="f-gym" style="display:none"></div>
+        <div id="f-gym" style="display:none">
+          <div style="margin-bottom:14px">
+            <label class="fl">Priem. tepová frekvencia (BPM)</label>
+            <input class="fi" type="number" id="ihr-avg-gym" placeholder="120" min="0" max="230" style="margin:0">
+          </div>
+        </div>
 
         <div style="margin-bottom:14px">
           <label class="fl">Spálené kalórie (kcal)</label>
           <input class="fi" type="number" id="ikcal" placeholder="300" min="0" style="margin:0">
         </div>
 
-        <div style="margin-bottom:0">
+        <div style="margin-bottom:14px">
           <label class="fl">Poznámka</label>
           <input class="fi" type="text" id="inote" placeholder="Ranný beh, park..." style="margin-bottom:0">
+        </div>
+
+        <div style="margin-bottom:0">
+          <label class="fl">Pocit po tréningu</label>
+          <div style="display:flex;gap:8px">
+            <button class="feeling-btn active" id="feel-1" onclick="setFeeling(1)">😴 Vyčerpaný</button>
+            <button class="feeling-btn" id="feel-2" onclick="setFeeling(2)">😐 Ok</button>
+            <button class="feeling-btn" id="feel-3" onclick="setFeeling(3)">💪 Silný</button>
+          </div>
         </div>
 
         <button class="btn bp bfull" id="sbtn" onclick="addRun()">Uložiť aktivitu →</button>
@@ -543,7 +623,7 @@ function sync(s,t){['sd','sd2'].forEach(id=>{const e=document.getElementById(id)
 
 async function loadRuns(){
   sync('syncing','Načítavam...');document.getElementById('rl').style.display='inline-block';
-  try{runs=await api('runs?order=created_at.desc&select=*');sync('ok','Synchronizované ✓');renderHistory();renderCharts();}
+  try{runs=await api('runs?order=created_at.desc&select=*');sync('ok','Synchronizované ✓');renderHistory();renderCharts();updateDashboard();}
   catch(e){sync('err','Chyba');toast(e.message,'err');}
   document.getElementById('rl').style.display='none';
 }
@@ -561,6 +641,110 @@ function go(p){
 
 function toast(msg,type=''){const e=document.getElementById('toast');e.textContent=msg;e.className='toast show '+type;setTimeout(()=>e.className='toast',3000);}
 
+// ---- FEELING ----
+let currentFeeling=1;
+function setFeeling(f){
+  currentFeeling=f;
+  [1,2,3].forEach(n=>{const e=document.getElementById('feel-'+n);if(e)e.classList.toggle('active',n===f);});
+}
+
+// ---- HR ZONE (formula: 220-age, default max 190) ----
+function getHRZone(hrAvg,hrMax){
+  if(!hrAvg||hrAvg<=0)return null;
+  const maxHR=hrMax||190;
+  const pct=(hrAvg/maxHR)*100;
+  if(pct<60)return{name:'Zóna 1 — Regenerácia',cls:'z1'};
+  if(pct<70)return{name:'Zóna 2 — Aeróbna',cls:'z2'};
+  if(pct<80)return{name:'Zóna 3 — Tempo',cls:'z3'};
+  if(pct<90)return{name:'Zóna 4 — Prah',cls:'z4'};
+  return{name:'Zóna 5 — Anaeróbna',cls:'z5'};
+}
+
+// ---- STREAK ----
+function calcStreak(runs){
+  if(!runs.length)return 0;
+  const dates=new Set(runs.map(r=>r.date));
+  let streak=0,d=new Date();
+  // check today or yesterday first
+  const fmt=dt=>dt.toISOString().slice(0,10);
+  if(!dates.has(fmt(d))){d.setDate(d.getDate()-1);}
+  while(dates.has(fmt(d))){streak++;d.setDate(d.getDate()-1);}
+  return streak;
+}
+
+// ---- PERSONAL RECORDS ----
+function calcPRs(runs){
+  const runRuns=runs.filter(r=>(!r.activity||r.activity==='run')&&r.km>0);
+  const bikeRuns=runs.filter(r=>r.activity==='bike'&&r.km>0);
+  const prs=[];
+  if(runRuns.length){
+    const maxKm=Math.max(...runRuns.map(r=>r.km));
+    prs.push('🏃 '+maxKm.toFixed(1)+'km');
+  }
+  if(bikeRuns.length){
+    const maxKm=Math.max(...bikeRuns.map(r=>r.km));
+    prs.push('🚴 '+maxKm.toFixed(1)+'km');
+  }
+  return prs.join(' · ')||'—';
+}
+
+// ---- WEEKLY GOAL ----
+function getWeekStart(){
+  const d=new Date();d.setHours(0,0,0,0);
+  d.setDate(d.getDate()-d.getDay()+1);
+  return d.toISOString().slice(0,10);
+}
+
+function saveGoal(){
+  const v=document.getElementById('goal-input').value;
+  localStorage.setItem('rt_goal_'+currentActivity,v);
+  updateGoalBar();
+}
+
+function updateGoalBar(){
+  const act=currentActivity||'run';
+  const goalEl=document.getElementById('goal-input');
+  const unitEl=document.getElementById('goal-unit');
+  const barEl=document.getElementById('goal-bar');
+  const textEl=document.getElementById('goal-progress-text');
+  const detailEl=document.getElementById('goal-detail');
+  if(!goalEl)return;
+
+  const storedGoal=parseFloat(localStorage.getItem('rt_goal_'+act))||0;
+  if(goalEl&&storedGoal)goalEl.value=storedGoal;
+
+  const weekStart=getWeekStart();
+  const weekRuns=runs.filter(r=>r.date>=weekStart&&(r.activity||'run')===act);
+
+  let current=0,unit='km',goalLabel='';
+  if(act==='gym'){
+    unit='návštevy';
+    current=weekRuns.length;
+    goalLabel=`${current} / ${storedGoal||'?'} návštev tento týždeň`;
+  } else {
+    current=weekRuns.reduce((a,r)=>a+(r.km||0),0);
+    goalLabel=`${current.toFixed(1)} / ${storedGoal||'?'} km tento týždeň`;
+  }
+
+  if(unitEl)unitEl.textContent=unit;
+  if(textEl)textEl.textContent=act==='gym'?`${current} / ${storedGoal||'?'}`:`${current.toFixed(1)} / ${storedGoal||'?'}`;
+  if(detailEl)detailEl.textContent=storedGoal?goalLabel:'Nastav týždenný cieľ vyššie';
+
+  if(barEl&&storedGoal>0){
+    const pct=Math.min(100,(current/storedGoal)*100);
+    barEl.style.width=pct+'%';
+    barEl.classList.toggle('done',pct>=100);
+  }
+}
+
+function updateDashboard(){
+  const streakEl=document.getElementById('streak-num');
+  const prEl=document.getElementById('pr-summary');
+  if(streakEl)streakEl.textContent=calcStreak(runs);
+  if(prEl)prEl.textContent=calcPRs(runs);
+  updateGoalBar();
+}
+
 let addActivity='run';
 const actTitles={run:'Detaily behu',bike:'Detaily jazdy',gym:'Detaily tréningu'};
 const actNotes={run:'Ranný beh, park...',bike:'Ranná jazda, hora...',gym:'Nohavice, chrbát...'};
@@ -575,6 +759,7 @@ function setAddActivity(a){
   document.getElementById('f-run').style.display=a==='run'?'block':'none';
   document.getElementById('f-bike').style.display=a==='bike'?'block':'none';
   if(a!=='run')document.getElementById('ipace').value='';
+  updateGoalBar();
 }
 
 function calcPace(){
@@ -607,8 +792,10 @@ async function addRun(){
   btn.disabled=true;
   btn.innerHTML='<span class="loader" style="border-color:rgba(255,255,255,.3);border-top-color:#fff"></span> Ukladám...';
   try{
-    const s=await api('runs',{method:'POST',body:JSON.stringify({date,km,time,kcal,pace,note,coords:'[]',user_id:user.id,activity:addActivity,elev})});
-    runs.unshift(s[0]);sync('ok','Synchronizované ✓');
+    const hrAvg=parseFloat(document.getElementById('ihr-avg-'+(addActivity==='gym'?'gym':addActivity==='bike'?'bike':'run'))?.value)||0;
+    const hrMax=parseFloat(document.getElementById('ihr-max-'+(addActivity==='bike'?'bike':'run'))?.value)||0;
+    const s=await api('runs',{method:'POST',body:JSON.stringify({date,km,time,kcal,pace,note,coords:'[]',user_id:user.id,activity:addActivity,elev,hr_avg:hrAvg,hr_max:hrMax,feeling:currentFeeling})});
+    runs.unshift(s[0]);sync('ok','Synchronizované ✓');updateDashboard();
     if(kcal>0){document.getElementById('hkcal').textContent=kcal;document.getElementById('shint').style.display='block';document.getElementById('fkcal').value=kcal;}
     ['ikm','ikm-bike','ih','im','ipace','ikcal','inote','ielev'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
     document.getElementById('id').valueAsDate=new Date();
@@ -679,7 +866,24 @@ function renderHistory(){
   document.getElementById('hskm').textContent=runs.reduce((a,r)=>a+(r.km||0),0).toFixed(1);
   document.getElementById('hscnt').textContent=runs.length;
   document.getElementById('hskcal').textContent=Math.round(runs.reduce((a,r)=>a+(r.kcal||0),0));
-  el.innerHTML=runs.map((r,i)=>`<div class="rrow" id="rr-${r.id}"><div class="rnum">${runs.length-i}</div><div class="rico">${r.activity==='bike'?'🚴':r.activity==='gym'?'🏋️':'🏃'}</div><div class="rinfo"><div class="rt">${r.note||'Beh'}</div><div class="rm">${r.date}${r.pace?' · '+r.pace+' min/km':''}${r.time?' · '+r.time+' min':''}</div></div><div class="rr"><div class="rkm">${(r.km||0).toFixed(1)} km</div><div class="rkcal">${r.kcal?r.kcal+' kcal':''}</div></div><button class="delbtn" onclick="delRun('${r.id}')">✕</button></div>`).join('');
+  el.innerHTML=runs.map((r,i)=>{
+    const hrZone=getHRZone(r.hr_avg,r.hr_max);
+    const feelEmoji=r.feeling===3?'💪':r.feeling===2?'😐':'😴';
+    return `<div class="rrow" id="rr-${r.id}">
+      <div class="rnum">${runs.length-i}</div>
+      <div class="rico">${r.activity==='bike'?'🚴':r.activity==='gym'?'🏋️':'🏃'}</div>
+      <div class="rinfo">
+        <div class="rt">${r.note||'Aktivita'}${r.feeling?' '+feelEmoji:''}</div>
+        <div class="rm">${r.date}${r.pace?' · '+r.pace+' min/km':''}${r.time?' · '+r.time+' min':''}${r.elev?' · ↑'+r.elev+'m':''}${r.hr_avg?' · ❤️ '+r.hr_avg+' BPM':''}</div>
+        ${hrZone?`<div style="margin-top:4px"><span class="hr-zone ${hrZone.cls}">${hrZone.name}</span></div>`:''}
+      </div>
+      <div class="rr">
+        <div class="rkm">${r.activity==='gym'?(r.time||0)+' min':(r.km||0).toFixed(1)+' km'}</div>
+        <div class="rkcal">${r.kcal?r.kcal+' kcal':''}</div>
+      </div>
+      <button class="delbtn" onclick="delRun('${r.id}')">✕</button>
+    </div>`;
+  }).join('');;
 }
 
 async function delRun(id){
