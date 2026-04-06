@@ -276,7 +276,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
             <div style="font-size:18px;font-weight:700;color:var(--text);margin-top:2px" id="goal-progress-text">0 / 0</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <input type="number" id="goal-input" placeholder="30" min="0" style="width:70px;text-align:center;margin:0" class="fi" onchange="saveGoal()">
+            <input type="number" id="goal-input" placeholder="?" min="0" style="width:70px;text-align:center;margin:0" class="fi" onchange="saveGoal()">
             <span style="font-size:12px;color:var(--text3)" id="goal-unit">km</span>
           </div>
         </div>
@@ -735,8 +735,7 @@ function updateGoalBar(){
   goalEl.placeholder=placeholder;
 
   const storedGoal=parseFloat(localStorage.getItem('rt_goal_'+act))||0;
-  if(storedGoal)goalEl.value=storedGoal;
-  else goalEl.value='';
+  goalEl.value=storedGoal||'';
 
   const weekStart=getWeekStart();
   const weekRuns=runs.filter(r=>r.date>=weekStart&&(r.activity||'run')===act);
