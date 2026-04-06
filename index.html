@@ -920,76 +920,81 @@ async function delRun(id){
 }
 
 let cPerVal=7;
-function setPeriod(d,btn){cPerVal=d;document.querySelectorAll('#p-charts .pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderCharts();}
+let chartAct='run';
+function setChartActivity(a,btn){
+  chartAct=a;
+  document.querySelectorAll('#chart-act-btns .pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCharts();
+}
+function setPeriod(d,btn){cPerVal=d;document.querySelectorAll('#chart-period-btns .pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderCharts();}
 function pp(p){if(!p)return null;const s=p.split(':');return s.length===2?parseFloat(s[0])+parseFloat(s[1])/60:null;}
 
 function renderCharts(){
-  let f=runs;
-  if(cPerVal>0){const cut=new Date(Date.now()-cPerVal*86400000).toISOString().slice(0,10);f=runs.filter(r=>r.date>=cut);}
+  const act=chartAct||'run';
+  let f=runs.filter(r=>(r.activity||'run')===act);
+  if(cPerVal>0){const cut=new Date(Date.now()-cPerVal*86400000).toISOString().slice(0,10);f=f.filter(r=>r.date>=cut);}
   const last=[...f].reverse().slice(-20);
-  const tot=f.reduce((a,r)=>a+(r.km||0),0);
-  document.getElementById('cskm').textContent=tot.toFixed(1);
-  document.getElementById('csavg').textContent=f.length?(tot/f.length).toFixed(1):'0';
-  document.getElementById('csmax').textContent=f.length?Math.max(...f.map(r=>r.km||0)).toFixed(1):'0';
   const lbs=last.map(r=>(r.date||'').slice(5));
-  const mk=(id,data,color)=>{const ex=Chart.getChart(id);if(ex)ex.destroy();new Chart(document.getElementById(id),{type:'bar',data:{labels:lbs,datasets:[{data,backgroundColor:color+'33',borderColor:color,borderWidth:1.5,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#888',font:{size:11,family:'DM Mono'}},grid:{color:'rgba(0,0,0,0.05)'}},y:{ticks:{color:'#888',font:{size:11,family:'DM Mono'}},grid:{color:'rgba(0,0,0,0.05)'}}}}});};
-  mk('ckm',last.map(r=>r.km||0),'#F5C842');mk('ckcal',last.map(r=>r.kcal||0),'#3a8cc4');mk('cpace',last.map(r=>pp(r.pace)||0),'#e8925a');
+
+  const mk=(id,data,color,type='bar')=>{
+    const el=document.getElementById(id);if(!el)return;
+    const ex=Chart.getChart(id);if(ex)ex.destroy();
+    new Chart(el,{
+      type,
+      data:{labels:lbs,datasets:[{data,backgroundColor:color+'33',borderColor:color,borderWidth:1.5,borderRadius:type==='bar'?5:0,fill:type==='line',tension:.3}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+        x:{ticks:{color:'#888',font:{size:10,family:'DM Mono'}},grid:{color:'rgba(0,0,0,0.04)'}},
+        y:{ticks:{color:'#888',font:{size:10,family:'DM Mono'}},grid:{color:'rgba(0,0,0,0.04)'}}
+      }}
+    });
+  };
+
+  // helper to safely set text
+  const st=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+
+  if(act==='run'){
+    const tot=f.reduce((a,r)=>a+(r.km||0),0);
+    st('cskm',tot.toFixed(1)); st('csavg',f.length?(tot/f.length).toFixed(1):'0');
+    st('csmax',f.length?Math.max(...f.map(r=>r.km||0)).toFixed(1):'0');
+    st('cs-lbl1','Celkovo km'); st('cs-lbl2','Priem. vzd.'); st('cs-lbl3','Najdlhší beh');
+    st('cs-unit1','km'); st('cs-unit2','km/beh'); st('cs-unit3','km');
+    st('chart-lbl1','Vzdialenosť (km)'); st('chart-lbl2','Kalórie (kcal)');
+    st('chart-lbl3','Pace (min/km)'); st('chart-lbl4','Tepová frekvencia (BPM)');
+    const c3=document.getElementById('chart-card3');if(c3)c3.style.display='block';
+    mk('ckm',last.map(r=>r.km||0),'#F5C842');
+    mk('ckcal',last.map(r=>r.kcal||0),'#3a8cc4');
+    mk('cpace',last.map(r=>pp(r.pace)||0),'#e8925a');
+    mk('chr',last.map(r=>r.hr_avg||0),'#e84c4c','line');
+
+  } else if(act==='bike'){
+    const tot=f.reduce((a,r)=>a+(r.km||0),0);
+    st('cskm',tot.toFixed(1)); st('csavg',f.length?(tot/f.length).toFixed(1):'0');
+    st('csmax',f.length?Math.max(...f.map(r=>r.elev||0)).toFixed(0):'0');
+    st('cs-lbl1','Celkovo km'); st('cs-lbl2','Priem. vzd.'); st('cs-lbl3','Max prevýšenie');
+    st('cs-unit1','km'); st('cs-unit2','km/jazda'); st('cs-unit3','m');
+    st('chart-lbl1','Vzdialenosť (km)'); st('chart-lbl2','Kalórie (kcal)');
+    st('chart-lbl3','Prevýšenie (m)'); st('chart-lbl4','Tepová frekvencia (BPM)');
+    const c3=document.getElementById('chart-card3');if(c3)c3.style.display='block';
+    mk('ckm',last.map(r=>r.km||0),'#F5C842');
+    mk('ckcal',last.map(r=>r.kcal||0),'#3a8cc4');
+    mk('cpace',last.map(r=>r.elev||0),'#2D8A4E');
+    mk('chr',last.map(r=>r.hr_avg||0),'#e84c4c','line');
+
+  } else if(act==='gym'){
+    const totKcal=f.reduce((a,r)=>a+(r.kcal||0),0);
+    const totMin=f.reduce((a,r)=>a+(r.time||0),0);
+    st('cskm',f.length); st('csavg',f.length?Math.round(totKcal/f.length):'0');
+    st('csmax',Math.round(totMin/60)+'h');
+    st('cs-lbl1','Počet tréningov'); st('cs-lbl2','Priem. kcal'); st('cs-lbl3','Celkový čas');
+    st('cs-unit1','tréningov'); st('cs-unit2','kcal/tréning'); st('cs-unit3','');
+    st('chart-lbl1','Trvanie (min)'); st('chart-lbl2','Kalórie (kcal)');
+    st('chart-lbl4','Tepová frekvencia (BPM)');
+    const c3=document.getElementById('chart-card3');if(c3)c3.style.display='none';
+    mk('ckm',last.map(r=>r.time||0),'#F5C842');
+    mk('ckcal',last.map(r=>r.kcal||0),'#3a8cc4');
+    mk('chr',last.map(r=>r.hr_avg||0),'#e84c4c','line');
+  }
 }
 
-let activeDiets=new Set(['all']);
-function toggleDiet(d){
-  if(d==='all'){activeDiets=new Set(['all']);}
-  else{activeDiets.delete('all');if(activeDiets.has(d))activeDiets.delete(d);else activeDiets.add(d);if(activeDiets.size===0)activeDiets.add('all');}
-  document.getElementById('d-all').classList.toggle('active',activeDiets.has('all'));
-  document.getElementById('d-bl').classList.toggle('active',activeDiets.has('bezlepkova'));
-  document.getElementById('d-bz').classList.toggle('active',activeDiets.has('bezlaktozova'));
-  document.getElementById('d-pr').classList.toggle('active',activeDiets.has('protein'));
-  fOff=0;doFood();
-}
-function matchesDiet(item){
-  if(activeDiets.has('all'))return true;
-  return [...activeDiets].every(d=>item.d.includes(d));
-}
 
-function doFood(){
-  const kcal=parseFloat(document.getElementById('fkcal').value)||0;
-  const el=document.getElementById('fout');
-  if(!kcal){el.innerHTML='';return;}
-  const df=FOODS.filter(f=>matchesDiet(f));
-  const sh=[...df];
-  for(let i=sh.length-1;i>0;i--){const j=(i*1234567+fOff*7+3)%(i+1);[sh[i],sh[j]]=[sh[j],sh[i]];}
-  let tmp=kcal;const ch=[];
-  for(const f of sh){if(tmp<=0||ch.length>=4)break;const p=Math.min(3,Math.max(1,Math.round(tmp/f.k)));ch.push({...f,p,tot:p*f.k});tmp-=p*f.k;}
-  const cov=ch.reduce((a,f)=>a+f.tot,0);
-  el.innerHTML=`<div class="hdiv"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:8px">
-      <p style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace">Potraviny pre ${kcal} kcal:</p>
-      <button class="shuf" onclick="fOff++;doFood()">↻ Iné potraviny</button>
-    </div>
-    <div class="fgrid">${ch.map(f=>`<div class="fc"><div class="fn">${f.n}</div><div class="fa">${f.p>1?f.p+'× ':''}${f.a}</div><div class="fnote">${f.note}</div><div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap"><div class="fk">+${f.tot} kcal</div>${f.p>3?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#3a8cc4;font-weight:500">💪 ${f.p}g bielkovín</div>`:''}</div></div>`).join('')}</div>
-    <div class="badge" style="margin-bottom:1rem">Celkom: ${cov} / ${kcal} kcal</div>
-    <div class="hdiv"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
-      <p style="font-size:13px;font-weight:500;color:var(--text)">Rýchle recepty</p>
-      <div style="display:flex;gap:6px">
-        <button class="rtab ${rTyp==='slany'?'active':''}" id="rts" onclick="setRT('slany',${kcal})">Slaný</button>
-        <button class="rtab ${rTyp==='sladky'?'active':''}" id="rtsw" onclick="setRT('sladky',${kcal})">Sladký</button>
-      </div>
-    </div>
-    <div id="rout"></div>`;
-  renderRec(kcal);
-}
-
-function setRT(t,kcal){rTyp=t;rOff=0;const s=document.getElementById('rts');const sw=document.getElementById('rtsw');if(s)s.className='rtab'+(t==='slany'?' active':'');if(sw)sw.className='rtab'+(t==='sladky'?' active':'');renderRec(kcal);}
-
-function renderRec(kcal){
-  const el=document.getElementById('rout');if(!el)return;
-  const f=REC.filter(r=>r.t===rTyp&&matchesDiet(r));
-  if(!f.length){el.innerHTML='<p style="font-size:13px;color:var(--text3);padding:.5rem 0">Pre túto diétu nie sú dostupné recepty.</p>';return;}
-  const i=rOff%f.length;const ch=[f[i],f[(i+1)%f.length]];
-  el.innerHTML=`<div style="display:flex;justify-content:flex-end;margin-bottom:.75rem"><button class="shuf" onclick="rOff++;renderRec(${kcal})">↻ Iné recepty</button></div>
-    ${ch.map(r=>`<div class="recc"><div class="rn">${r.nz}</div><div class="rmeta">⏱ ${r.c} · 🔥 ${r.k} kcal${r.p?' · 💪 '+r.p+'g bielkovín':''}</div><div class="rsec"><div class="rst">Ingrediencie</div><ul class="rl">${r.i.map(x=>`<li>${x}</li>`).join('')}</ul></div><div class="rsec"><div class="rst">Postup</div><ol class="rl rsteps">${r.s.map(x=>`<li>${x}</li>`).join('')}</ol></div></div>`).join('')}`;
-}
-</script>
-</body>
-</html>
