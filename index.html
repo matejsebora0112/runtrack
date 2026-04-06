@@ -1014,4 +1014,61 @@ function renderCharts(){
   }
 }
 
+function setDiet(d,btn){cDiet=d;fOff=0;document.querySelectorAll('#dbtns .pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');doFood();}
 
+function doFood(){
+  const kcal=parseFloat(document.getElementById('fkcal').value)||0;
+  const el=document.getElementById('fout');
+  if(!kcal){el.innerHTML='';return;}
+  const df=FOODS.filter(f=>matchesDiet(f));
+  const sh=[...df];
+  for(let i=sh.length-1;i>0;i--){const j=(i*1234567+fOff*7+3)%(i+1);[sh[i],sh[j]]=[sh[j],sh[i]];}
+  let tmp=kcal;const ch=[];
+  for(const f of sh){if(tmp<=0||ch.length>=4)break;const p=Math.min(3,Math.max(1,Math.round(tmp/f.k)));ch.push({...f,p,tot:p*f.k});tmp-=p*f.k;}
+  const cov=ch.reduce((a,f)=>a+f.tot,0);
+  el.innerHTML=`<div class="hdiv"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:8px">
+      <p style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace">Potraviny pre ${kcal} kcal:</p>
+      <button class="shuf" onclick="fOff++;doFood()">↻ Iné potraviny</button>
+    </div>
+    <div class="fgrid">${ch.map(f=>`<div class="fc"><div class="fn">${f.n}</div><div class="fa">${f.p>1?f.p+'× ':''}${f.a}</div><div class="fnote">${f.note}</div><div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap"><div class="fk">+${f.tot} kcal</div>${f.p>3?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:#3a8cc4;font-weight:500">💪 ${f.p}g bielkovín</div>`:''}</div></div>`).join('')}</div>
+    <div class="badge" style="margin-bottom:1rem">Celkom: ${cov} / ${kcal} kcal</div>
+    <div class="hdiv"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+      <p style="font-size:13px;font-weight:500;color:var(--text)">Rýchle recepty</p>
+      <div style="display:flex;gap:6px">
+        <button class="rtab ${rTyp==='slany'?'active':''}" id="rts" onclick="setRT('slany',${kcal})">Slaný</button>
+        <button class="rtab ${rTyp==='sladky'?'active':''}" id="rtsw" onclick="setRT('sladky',${kcal})">Sladký</button>
+      </div>
+    </div>
+    <div id="rout"></div>`;
+  renderRec(kcal);
+}
+
+function setRT(t,kcal){rTyp=t;rOff=0;const s=document.getElementById('rts');const sw=document.getElementById('rtsw');if(s)s.className='rtab'+(t==='slany'?' active':'');if(sw)sw.className='rtab'+(t==='sladky'?' active':'');renderRec(kcal);}
+
+function renderRec(kcal){
+  const el=document.getElementById('rout');if(!el)return;
+  const f=REC.filter(r=>r.t===rTyp&&matchesDiet(r));
+  if(!f.length){el.innerHTML='<p style="font-size:13px;color:var(--text3);padding:.5rem 0">Pre túto diétu nie sú dostupné recepty.</p>';return;}
+  const i=rOff%f.length;const ch=[f[i],f[(i+1)%f.length]];
+  el.innerHTML=`<div style="display:flex;justify-content:flex-end;margin-bottom:.75rem"><button class="shuf" onclick="rOff++;renderRec(${kcal})">↻ Iné recepty</button></div>
+    ${ch.map(r=>`<div class="recc"><div class="rn">${r.nz}</div><div class="rmeta">⏱ ${r.c} · 🔥 ${r.k} kcal${r.p?' · 💪 '+r.p+'g bielkovín':''}</div><div class="rsec"><div class="rst">Ingrediencie</div><ul class="rl">${r.i.map(x=>`<li>${x}</li>`).join('')}</ul></div><div class="rsec"><div class="rst">Postup</div><ol class="rl rsteps">${r.s.map(x=>`<li>${x}</li>`).join('')}</ol></div></div>`).join('')}`;
+}
+let activeDiets=new Set(['all']);
+function toggleDiet(d){
+  if(d==='all'){activeDiets=new Set(['all']);}
+  else{activeDiets.delete('all');if(activeDiets.has(d))activeDiets.delete(d);else activeDiets.add(d);if(activeDiets.size===0)activeDiets.add('all');}
+  document.getElementById('d-all').classList.toggle('active',activeDiets.has('all'));
+  document.getElementById('d-bl').classList.toggle('active',activeDiets.has('bezlepkova'));
+  document.getElementById('d-bz').classList.toggle('active',activeDiets.has('bezlaktozova'));
+  document.getElementById('d-pr').classList.toggle('active',activeDiets.has('protein'));
+  fOff=0;doFood();
+}
+function matchesDiet(item){
+  if(activeDiets.has('all'))return true;
+  return [...activeDiets].every(d=>item.d.includes(d));
+}
+</script>
+</body>
+</html>
