@@ -107,7 +107,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .rkcal{font-size:11px;color:var(--text3);margin-top:2px}
 .empty{text-align:center;padding:3rem 2rem;color:var(--text3)}
 .empty .big{font-size:40px;margin-bottom:1rem}
-.cw{position:relative;height:200px;margin-top:.5rem}
+.cw{position:relative;height:180px;margin-top:.5rem}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:768px){.chart-grid{grid-template-columns:1fr}.cw{height:160px}}
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:.75rem}
 .fc{background:#F2EDD8;border:1px solid rgba(0,0,0,.07);border-radius:var(--rs);padding:12px}
 .fn{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px}
@@ -416,21 +418,37 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <!-- CHARTS -->
     <div id="p-charts" class="page">
       <div class="ph"><h1 class="pt">Grafy výkonu</h1><p class="ps">Tvoj pokrok v čase</p></div>
-      <div class="srow">
-        <div class="sc ag"><div class="sl">Celkovo km</div><div class="sv" id="cskm">0</div><div class="su">km</div></div>
-        <div class="sc"><div class="sl">Priem. vzd.</div><div class="sv" id="csavg">0</div><div class="su">km/beh</div></div>
-        <div class="sc ao"><div class="sl">Najdlhší</div><div class="sv" id="csmax">0</div><div class="su">km</div></div>
+
+      <!-- Activity filter -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem" id="chart-act-btns">
+        <button class="pill active" onclick="setChartActivity('run',this)">🏃 Beh</button>
+        <button class="pill" onclick="setChartActivity('bike',this)">🚴 Bike</button>
+        <button class="pill" onclick="setChartActivity('gym',this)">🏋️ Gym</button>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem">
+
+      <!-- Period filter -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem" id="chart-period-btns">
         <button class="pill active" onclick="setPeriod(7,this)">7 dní</button>
         <button class="pill" onclick="setPeriod(30,this)">30 dní</button>
         <button class="pill" onclick="setPeriod(90,this)">3 mesiace</button>
         <button class="pill" onclick="setPeriod(365,this)">Rok</button>
         <button class="pill" onclick="setPeriod(0,this)">Všetko</button>
       </div>
-      <div class="card"><div class="ct">Vzdialenosť (km)</div><div class="cw"><canvas id="ckm"></canvas></div></div>
-      <div class="card"><div class="ct">Kalórie (kcal)</div><div class="cw"><canvas id="ckcal"></canvas></div></div>
-      <div class="card"><div class="ct">Pace (min/km)</div><div class="cw"><canvas id="cpace"></canvas></div></div>
+
+      <!-- Stats row - dynamic -->
+      <div class="srow" id="chart-stats-row">
+        <div class="sc ag"><div class="sl" id="cs-lbl1">Celkovo km</div><div class="sv" id="cskm">0</div><div class="su" id="cs-unit1">km</div></div>
+        <div class="sc"><div class="sl" id="cs-lbl2">Priem. vzd.</div><div class="sv" id="csavg">0</div><div class="su" id="cs-unit2">km/aktivita</div></div>
+        <div class="sc ao"><div class="sl" id="cs-lbl3">Najlepší</div><div class="sv" id="csmax">0</div><div class="su" id="cs-unit3">km</div></div>
+      </div>
+
+      <!-- Charts grid 2x2 on desktop -->
+      <div class="chart-grid">
+        <div class="card"><div class="ct" id="chart-lbl1">Vzdialenosť (km)</div><div class="cw"><canvas id="ckm"></canvas></div></div>
+        <div class="card"><div class="ct" id="chart-lbl2">Kalórie (kcal)</div><div class="cw"><canvas id="ckcal"></canvas></div></div>
+        <div class="card" id="chart-card3"><div class="ct" id="chart-lbl3">Pace (min/km)</div><div class="cw"><canvas id="cpace"></canvas></div></div>
+        <div class="card" id="chart-card4"><div class="ct" id="chart-lbl4">Tepová frekvencia (BPM)</div><div class="cw"><canvas id="chr"></canvas></div></div>
+      </div>
     </div>
 
     <!-- FOOD -->
