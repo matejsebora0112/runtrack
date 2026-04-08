@@ -1,7 +1,7 @@
 {
   "name": "TrackFit",
   "short_name": "TrackFit",
-  "description": "Tvoj osobný fit denník",
+  "description": "Tvoj osobn\u00fd fit denn\u00edk",
   "start_url": "/runtrack/",
   "display": "standalone",
   "background_color": "#111111",
@@ -19,6 +19,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }
