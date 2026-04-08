@@ -176,6 +176,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .act-tile-lbl{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
 .act-tile.active .act-tile-lbl{color:#F5C842}
 @media(max-width:768px){.act-tile{padding:1rem .75rem}.act-tile-ico{font-size:24px}.act-tile-lbl{font-size:11px}}
+.h-btn{padding:10px 6px;border-radius:var(--rs);border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center}
+.h-btn:hover{border-color:#3a8cc4;color:#3a8cc4;background:#E0F0FA}
+.h-log-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.h-log-row:last-child{border-bottom:none}
 .loader{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.1);border-top-color:#B8860B;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .toast{position:fixed;bottom:2rem;right:2rem;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rs);padding:12px 18px;font-size:14px;color:var(--text);z-index:999;transform:translateY(20px);opacity:0;transition:all .25s ease;pointer-events:none}
@@ -257,6 +261,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <div class="ni" onclick="go('history')"><span class="nic">≡</span>História</div>
       <div class="ni" onclick="go('charts')"><span class="nic">▦</span>Grafy</div>
       <div class="ni" onclick="go('food')"><span class="nic">◈</span>Jedlo</div>
+      <div class="ni" onclick="go('hydration')"><span class="nic">💧</span>Hydratácia</div>
+      <div class="ni" onclick="go('hydration')"><span class="nic">💧</span>Hydratácia</div>
     </div>
     <div class="sf">v1.0 · TrackFit</div>
   </nav>
@@ -485,6 +491,66 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
         <div id="fout"></div>
       </div>
     </div>
+
+    <!-- HYDRATION -->
+    <div id="p-hydration" class="page">
+      <div class="ph"><h1 class="pt">Hydratácia</h1><p class="ps">Sleduj denný príjem vody</p></div>
+
+      <!-- Daily progress -->
+      <div class="card" id="hydration-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px">Dnes vypité</div>
+            <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px">
+              <span style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:#3a8cc4" id="h-amount">0</span>
+              <span style="font-size:14px;color:var(--text3)">ml</span>
+              <span style="font-size:14px;color:var(--text3)">/</span>
+              <span style="font-size:14px;color:var(--text2);font-family:'DM Mono',monospace" id="h-goal-lbl">2500 ml</span>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:12px;color:var(--text3);margin-bottom:4px">Denný cieľ</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input type="number" id="h-goal-input" value="2500" min="500" max="6000" step="250" class="fi" style="width:90px;text-align:center;margin:0" onchange="saveHydrationGoal()">
+              <span style="font-size:12px;color:var(--text3)">ml</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="goal-bar-bg" style="margin-bottom:.5rem">
+          <div class="goal-bar-fill" id="h-bar" style="width:0%;background:#3a8cc4"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:1.25rem" id="h-pct">0% denného cieľa</div>
+
+        <!-- Quick add buttons -->
+        <div style="font-size:12px;color:var(--text3);margin-bottom:.75rem;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px">Rýchle pridanie</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem">
+          <button class="h-btn" onclick="addWater(150)">☕ 150ml</button>
+          <button class="h-btn" onclick="addWater(250)">🥛 250ml</button>
+          <button class="h-btn" onclick="addWater(330)">🥤 330ml</button>
+          <button class="h-btn" onclick="addWater(500)">💧 500ml</button>
+        </div>
+
+        <!-- Custom amount -->
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="h-custom" class="fi" placeholder="vlastné ml" min="0" max="2000" step="50" style="flex:1;margin:0">
+          <button class="btn bp" onclick="addCustomWater()" style="flex-shrink:0;white-space:nowrap">+ Pridať</button>
+        </div>
+
+        <!-- Undo -->
+        <div style="display:flex;justify-content:flex-end;margin-top:.75rem">
+          <button class="shuf" onclick="undoWater()">↩ Späť</button>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="card">
+        <div class="ct">Posledné záznamy</div>
+        <div id="h-log"></div>
+      </div>
+    </div>
+
   </main>
 
   <nav class="bnav">
@@ -494,6 +560,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <button class="bni" onclick="go('history')"><span class="bnic">≡</span>História</button>
       <button class="bni" onclick="go('charts')"><span class="bnic">▦</span>Grafy</button>
       <button class="bni" onclick="go('food')"><span class="bnic">◈</span>Jedlo</button>
+      <button class="bni" onclick="go('hydration')"><span class="bnic">💧</span>Voda</button>
+      <button class="bni" onclick="go('hydration')"><span class="bnic">💧</span>Voda</button>
     </div>
   </nav>
 </div>
@@ -661,6 +729,7 @@ function showApp(){
   document.getElementById('id').valueAsDate=new Date();
   ['ikm','ih','im'].forEach(id=>document.getElementById(id).addEventListener('input',calcPace));
   loadRuns();
+  loadHydration();
 }
 
 async function api(path,opts={}){
@@ -683,7 +752,7 @@ async function loadRuns(){
 }
 
 function go(p){
-  const ps=['add','map','history','charts','food'];
+  const ps=['add','map','history','charts','food','hydration'];
   document.querySelectorAll('.ni').forEach((e,i)=>e.classList.toggle('active',ps[i]===p));
   document.querySelectorAll('.bni').forEach((e,i)=>e.classList.toggle('active',ps[i]===p));
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
@@ -691,6 +760,7 @@ function go(p){
   if(p==='history')renderHistory();
   if(p==='charts')renderCharts();
   if(p==='map')initMap();
+  if(p==='hydration')renderHydration();
 }
 
 function toast(msg,type=''){const e=document.getElementById('toast');e.textContent=msg;e.className='toast show '+type;setTimeout(()=>e.className='toast',3000);}
@@ -1152,6 +1222,105 @@ function toggleDiet(d){
 function matchesDiet(item){
   if(activeDiets.has('all'))return true;
   return [...activeDiets].every(d=>item.d.includes(d));
+}
+
+// ---- HYDRATION ----
+let hydrationLog = [];
+let hydrationGoal = 2500;
+let lastWaterAmount = 0;
+
+function getTodayDate(){return new Date().toISOString().slice(0,10);}
+
+async function loadHydration(){
+  try{
+    const today = getTodayDate();
+    const rows = await api('hydration?user_id=eq.'+user.id+'&date=eq.'+today+'&order=created_at.desc&select=*');
+    hydrationLog = rows;
+    const goalRow = await api('hydration?user_id=eq.'+user.id+'&select=goal_ml&limit=1');
+    if(goalRow.length && goalRow[0].goal_ml) hydrationGoal = goalRow[0].goal_ml;
+    renderHydration();
+  }catch(e){console.warn('Hydration load error:',e);}
+}
+
+function renderHydration(){
+  const today = getTodayDate();
+  const todayLog = hydrationLog.filter(r=>r.date===today);
+  const total = todayLog.reduce((a,r)=>a+(r.amount_ml||0),0);
+
+  const el = document.getElementById('h-amount');
+  const bar = document.getElementById('h-bar');
+  const pct = document.getElementById('h-pct');
+  const goalLbl = document.getElementById('h-goal-lbl');
+  const goalInput = document.getElementById('h-goal-input');
+  const log = document.getElementById('h-log');
+
+  if(el) el.textContent = Math.round(total);
+  if(goalLbl) goalLbl.textContent = hydrationGoal + ' ml';
+  if(goalInput) goalInput.value = hydrationGoal;
+
+  const p = Math.min(100, Math.round((total/hydrationGoal)*100));
+  if(bar){bar.style.width=p+'%';bar.classList.toggle('done',p>=100);}
+  if(pct){
+    if(p>=100) pct.textContent = '✅ Denný cieľ splnený!';
+    else pct.textContent = p+'% denného cieľa · zostáva '+(hydrationGoal-total)+' ml';
+  }
+
+  // Log
+  if(log){
+    if(!todayLog.length){
+      log.innerHTML='<div class="empty" style="padding:1.5rem 0;text-align:center;color:var(--text3)">💧 Dnes si ešte nepil</div>';
+    } else {
+      log.innerHTML = todayLog.slice(0,10).map(r=>`
+        <div class="h-log-row">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">💧</span>
+            <span style="font-size:14px;font-weight:500;color:var(--text)">${r.amount_ml} ml</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${(r.created_at||'').slice(11,16)}</span>
+            <button class="delbtn" onclick="deleteWater('${r.id}')">✕</button>
+          </div>
+        </div>`).join('');
+    }
+  }
+}
+
+async function addWater(ml){
+  lastWaterAmount = ml;
+  try{
+    const s = await api('hydration',{method:'POST',body:JSON.stringify({user_id:user.id,date:getTodayDate(),amount_ml:ml,goal_ml:hydrationGoal})});
+    hydrationLog.unshift(s[0]);
+    renderHydration();
+    toast('💧 +'+ml+'ml pridané!','green');
+  }catch(e){toast('Chyba: '+e.message,'err');}
+}
+
+function addCustomWater(){
+  const ml = parseFloat(document.getElementById('h-custom').value)||0;
+  if(!ml||ml<10){toast('Zadaj platné množstvo!');return;}
+  document.getElementById('h-custom').value='';
+  addWater(ml);
+}
+
+async function undoWater(){
+  if(!hydrationLog.length){toast('Nič na vrátenie!');return;}
+  const last = hydrationLog[0];
+  await deleteWater(last.id);
+  toast('↩ Zrušené','green');
+}
+
+async function deleteWater(id){
+  try{
+    await api('hydration?id=eq.'+id,{method:'DELETE',headers:{'Prefer':'return=minimal'}});
+    hydrationLog = hydrationLog.filter(r=>String(r.id)!==String(id));
+    renderHydration();
+  }catch(e){toast('Chyba: '+e.message,'err');}
+}
+
+async function saveHydrationGoal(){
+  hydrationGoal = parseFloat(document.getElementById('h-goal-input').value)||2500;
+  renderHydration();
+  toast('Cieľ uložený: '+hydrationGoal+'ml','green');
 }
 </script>
 </body>
