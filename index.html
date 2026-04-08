@@ -942,8 +942,6 @@ function startRun(){
   lCoords=[];lDist=0;sTime=Date.now();rLine&&rLine.setLatLngs([]);
   document.getElementById('bstart').style.display='none';document.getElementById('bstop').style.display='inline-flex';
   document.getElementById('mdot').classList.add('rec');
-  const wb=document.getElementById('weather-badge');if(wb)wb.style.display='none';
-  weatherData=null;
   document.getElementById('mst').textContent=currentActivity==='run'?'Nahrávam beh...':'Nahrávam jazdu...';
   document.getElementById('activity-btns').style.opacity='0.4';
   document.getElementById('activity-btns').style.pointerEvents='none';
