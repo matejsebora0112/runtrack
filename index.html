@@ -2,8 +2,16 @@
 <html lang="sk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TrackFit</title>
+<meta name="application-name" content="TrackFit">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TrackFit">
+<meta name="theme-color" content="#111111">
+<meta name="description" content="Tvoj osobný fit denník">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -559,14 +567,20 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <button class="bni" onclick="go('history')"><span class="bnic">≡</span>História</button>
       <button class="bni" onclick="go('charts')"><span class="bnic">▦</span>Grafy</button>
       <button class="bni" onclick="go('food')"><span class="bnic">◈</span>Jedlo</button>
-      <button class="bni" onclick="go('hydration')"><span class="bnic">💧</span>Voda</button>
-    </div>
   </nav>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/runtrack/sw.js').catch(()=>{});
+  });
+}
+
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/runtrack/sw.js').catch(()=>{});});}
+
 const SB='https://qtuyhfurupzzzoyogkbm.supabase.co';
 const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0dXloZnVydXB6enpveW9na2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTAxMTUsImV4cCI6MjA5MDg4NjExNX0.FYakZ5XtjXcEoUV7WinUl1MnJtJG8tJIF814HcBbMyk';
 let runs=[],user=null,token=null,amode='login';
