@@ -262,7 +262,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <div class="ni" onclick="go('charts')"><span class="nic">▦</span>Grafy</div>
       <div class="ni" onclick="go('food')"><span class="nic">◈</span>Jedlo</div>
       <div class="ni" onclick="go('hydration')"><span class="nic">💧</span>Hydratácia</div>
-      <div class="ni" onclick="go('hydration')"><span class="nic">💧</span>Hydratácia</div>
     </div>
     <div class="sf">v1.0 · TrackFit</div>
   </nav>
@@ -560,7 +559,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <button class="bni" onclick="go('history')"><span class="bnic">≡</span>História</button>
       <button class="bni" onclick="go('charts')"><span class="bnic">▦</span>Grafy</button>
       <button class="bni" onclick="go('food')"><span class="bnic">◈</span>Jedlo</button>
-      <button class="bni" onclick="go('hydration')"><span class="bnic">💧</span>Voda</button>
       <button class="bni" onclick="go('hydration')"><span class="bnic">💧</span>Voda</button>
     </div>
   </nav>
@@ -1277,7 +1275,7 @@ function renderHydration(){
             <span style="font-size:14px;font-weight:500;color:var(--text)">${r.amount_ml} ml</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px">
-            <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${(r.created_at||'').slice(11,16)}</span>
+            <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${r.created_at?new Date(r.created_at).toLocaleTimeString('sk-SK',{hour:'2-digit',minute:'2-digit'}):''}</span>
             <button class="delbtn" onclick="deleteWater('${r.id}')">✕</button>
           </div>
         </div>`).join('');
