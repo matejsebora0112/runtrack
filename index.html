@@ -387,8 +387,16 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <div id="p-map" class="page">
       <div class="ph"><h1 class="pt">GPS sledovanie</h1><p class="ps">Zaznamenaj trasu v reálnom čase</p></div>
       <div class="card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:.875rem;font-size:13px;color:var(--text2)">
-          <span class="pdot" id="mdot"></span><span id="mst">Pripravený</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2)">
+            <span class="pdot" id="mdot"></span><span id="mst">Pripravený</span>
+          </div>
+          <div id="weather-badge" style="display:none;align-items:center;gap:6px;background:#111;border-radius:20px;padding:5px 12px">
+            <span id="w-icon" style="font-size:14px"></span>
+            <span id="w-temp" style="font-size:12px;color:#F5C842;font-family:'DM Mono',monospace;font-weight:500"></span>
+            <span id="w-desc" style="font-size:11px;color:rgba(255,255,255,.6)"></span>
+            <span id="w-wind" style="font-size:11px;color:rgba(255,255,255,.4)"></span>
+          </div>
         </div>
         <div class="lrow">
           <div class="ls"><div class="lv" id="lvkm">0.00</div><div class="ll">km</div></div>
@@ -857,6 +865,58 @@ async function addRun(){
 }
 
 
+// ---- WEATHER ----
+let weatherData = null;
+
+const WMO_CODES = {
+  0:'Jasno',1:'Prevažne jasno',2:'Čiastočne oblačno',3:'Zamračené',
+  45:'Hmla',48:'Mrznúca hmla',
+  51:'Slabé mrholenie',53:'Mrholenie',55:'Husté mrholenie',
+  61:'Slabý dážď',63:'Dážď',65:'Silný dážď',
+  71:'Slabý sneh',73:'Sneh',75:'Silný sneh',
+  80:'Prehánky',81:'Silné prehánky',82:'Búrkové prehánky',
+  95:'Búrka',96:'Búrka s krupobitím',99:'Silná búrka'
+};
+
+const WMO_ICONS = {
+  0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
+  45:'🌫️',48:'🌫️',
+  51:'🌦️',53:'🌦️',55:'🌧️',
+  61:'🌧️',63:'🌧️',65:'🌧️',
+  71:'🌨️',73:'❄️',75:'❄️',
+  80:'🌦️',81:'🌧️',82:'⛈️',
+  95:'⛈️',96:'⛈️',99:'⛈️'
+};
+
+async function fetchWeather(lat, lng) {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weathercode,windspeed_10m&timezone=auto`;
+    const r = await fetch(url);
+    const d = await r.json();
+    const c = d.current;
+    const code = c.weathercode;
+    weatherData = {
+      temp: Math.round(c.temperature_2m),
+      desc: WMO_CODES[code] || 'Neznáme',
+      icon: WMO_ICONS[code] || '🌡️',
+      wind: Math.round(c.windspeed_10m),
+      code
+    };
+    // Show weather badge
+    const badge = document.getElementById('weather-badge');
+    if (badge) {
+      badge.style.display = 'flex';
+      document.getElementById('w-icon').textContent = weatherData.icon;
+      document.getElementById('w-temp').textContent = weatherData.temp + '°C';
+      document.getElementById('w-desc').textContent = weatherData.desc;
+      document.getElementById('w-wind').textContent = '💨 ' + weatherData.wind + ' km/h';
+    }
+  } catch(e) {
+    console.warn('Weather fetch failed:', e);
+    weatherData = null;
+  }
+}
+
 function setActivity(a){
   currentActivity=a;
   document.getElementById('act-run').classList.toggle('active',a==='run');
@@ -871,7 +931,10 @@ function initMap(){
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19}).addTo(mapO);
   rLine=L.polyline([],{color:currentActivity==='bike'?'#3a8cc4':'#F5C842',weight:5,opacity:.9}).addTo(mapO);
   setTimeout(()=>mapO.invalidateSize(),300);
-  if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>mapO.setView([p.coords.latitude,p.coords.longitude],16),()=>{},{enableHighAccuracy:true,timeout:8000});
+  if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>{
+    mapO.setView([p.coords.latitude,p.coords.longitude],16);
+    fetchWeather(p.coords.latitude,p.coords.longitude);
+  },()=>{},{enableHighAccuracy:true,timeout:8000});
 }
 
 function startRun(){
@@ -879,6 +942,8 @@ function startRun(){
   lCoords=[];lDist=0;sTime=Date.now();rLine&&rLine.setLatLngs([]);
   document.getElementById('bstart').style.display='none';document.getElementById('bstop').style.display='inline-flex';
   document.getElementById('mdot').classList.add('rec');
+  const wb=document.getElementById('weather-badge');if(wb)wb.style.display='none';
+  weatherData=null;
   document.getElementById('mst').textContent=currentActivity==='run'?'Nahrávam beh...':'Nahrávam jazdu...';
   document.getElementById('activity-btns').style.opacity='0.4';
   document.getElementById('activity-btns').style.pointerEvents='none';
@@ -904,7 +969,18 @@ async function stopRun(){
   const el=Math.floor((Date.now()-sTime)/60000),kcal=Math.round(lDist*(currentActivity==='bike'?35:65));
   const p=el/lDist;const pm=Math.floor(p);const ps=Math.round((p-pm)*60);
   try{
-    const s=await api('runs',{method:'POST',body:JSON.stringify({date:new Date().toISOString().slice(0,10),km:parseFloat(lDist.toFixed(2)),time:el,kcal,pace:pm+':'+(ps<10?'0':'')+ps,note:currentActivity==='bike'?'GPS jazda 🚴':'GPS beh 🏃',coords:JSON.stringify(lCoords),user_id:user.id,activity:currentActivity,elev:0})});
+    const s=await api('runs',{method:'POST',body:JSON.stringify({
+        date:new Date().toISOString().slice(0,10),
+        km:parseFloat(lDist.toFixed(2)),
+        time:el,kcal,
+        pace:pm+':'+(ps<10?'0':'')+ps,
+        note:currentActivity==='bike'?'GPS jazda 🚴':'GPS beh 🏃',
+        coords:JSON.stringify(lCoords),
+        user_id:user.id,
+        activity:currentActivity,
+        elev:0,
+        weather:weatherData?`${weatherData.icon} ${weatherData.temp}°C · ${weatherData.desc} · 💨${weatherData.wind}km/h`:null
+      })});
     runs.unshift(s[0]);toast('✓ '+(currentActivity==='bike'?'Jazda':'Beh')+' — '+lDist.toFixed(2)+' km · '+kcal+' kcal','green');
   }catch(e){toast('Chyba: '+e.message,'err');}
 }
@@ -925,7 +1001,7 @@ function renderHistory(){
       <div class="rico">${r.activity==='bike'?'🚴':r.activity==='gym'?'🏋️':'🏃'}</div>
       <div class="rinfo">
         <div class="rt">${r.note||'Aktivita'}${r.feeling?' '+feelEmoji:''}</div>
-        <div class="rm">${r.date}${r.pace?' · '+r.pace+' min/km':''}${r.time?' · '+r.time+' min':''}${r.elev?' · ↑'+r.elev+'m':''}${r.hr_avg?' · ❤️ '+r.hr_avg+' BPM':''}</div>
+        <div class="rm">${r.date}${r.pace?' · '+r.pace+' min/km':''}${r.time?' · '+r.time+' min':''}${r.elev?' · ↑'+r.elev+'m':''}${r.hr_avg?' · ❤️ '+r.hr_avg+' BPM':''}${r.weather?' · '+r.weather:''}</div>
         ${hrZone?`<div style="margin-top:4px"><span class="hr-zone ${hrZone.cls}">${hrZone.name}</span></div>`:''}
       </div>
       <div class="rr">
