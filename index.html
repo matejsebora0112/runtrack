@@ -188,6 +188,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 @media(max-width:768px){.act-tile{padding:1rem .75rem}.act-tile-ico{font-size:24px}.act-tile-lbl{font-size:11px}}
 .h-btn{padding:10px 6px;border-radius:var(--rs);border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center}
 .h-btn:hover{border-color:#3a8cc4;color:#3a8cc4;background:#E0F0FA}
+#p-map{padding:0!important;margin:0!important}
+#p-map.active{position:fixed;top:0;left:0;right:0;bottom:0;z-index:50;overflow:hidden}
 .h-log-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
 .h-log-row:last-child{border-bottom:none}
 .loader{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.1);border-top-color:#B8860B;border-radius:50%;animation:spin .7s linear infinite}
@@ -400,35 +402,94 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     </div>
 
         <!-- MAP -->
-    <div id="p-map" class="page">
-      <div class="ph"><h1 class="pt">GPS sledovanie</h1><p class="ps">Zaznamenaj trasu v reálnom čase</p></div>
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;flex-wrap:wrap;gap:8px">
-          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2)">
-            <span class="pdot" id="mdot"></span><span id="mst">Pripravený</span>
+    <div id="p-map" class="page" style="padding:0!important">
+
+      <!-- SCREEN 1: výber aktivity (pred štartom) -->
+      <div id="map-select" style="display:flex;flex-direction:column;height:100vh;max-height:100vh">
+        <!-- Header -->
+        <div style="background:#111;padding:10px 16px 9px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+          <button onclick="go('add')" style="background:none;border:none;font-size:13px;color:rgba(255,255,255,.45);cursor:pointer;font-family:'DM Sans',sans-serif">✕ Späť</button>
+          <span style="font-size:13px;font-weight:800;color:#F5C842;font-family:'Syne',sans-serif">Nová aktivita</span>
+          <button onclick="go('add')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,.3);cursor:pointer;font-family:'DM Sans',sans-serif">ručne</button>
+        </div>
+        <!-- Mapa -->
+        <div id="map" style="flex:1;min-height:200px;position:relative"></div>
+        <!-- GPS badge -->
+        <div id="weather-badge" style="display:none;position:absolute;top:60px;right:12px;z-index:500;align-items:center;gap:6px;background:#111;border-radius:20px;padding:5px 12px">
+          <span id="w-icon" style="font-size:14px"></span>
+          <span id="w-temp" style="font-size:12px;color:#F5C842;font-family:'DM Mono',monospace;font-weight:500"></span>
+          <span id="w-desc" style="font-size:11px;color:rgba(255,255,255,.6)"></span>
+          <span id="w-wind" style="font-size:11px;color:rgba(255,255,255,.4)"></span>
+        </div>
+        <!-- Bottom panel -->
+        <div style="background:#F7F3E8;padding:14px 16px 24px;flex-shrink:0">
+          <div style="font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;font-family:'DM Mono',monospace">Typ aktivity</div>
+          <div id="activity-btns" style="display:flex;gap:8px;margin-bottom:14px">
+            <button id="act-run" onclick="setActivity('run')" style="flex:1;background:#111;border:none;border-radius:10px;padding:12px 4px;cursor:pointer;text-align:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C842" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 5px"><circle cx="13.5" cy="4" r="1.8"/><path d="M7 22l4.5-8 2.5 3.5"/><path d="M14.5 17.5l2-5.5 2.5 1.5"/><path d="M7 22l2-4"/><path d="M10 10l3-3.5 3 2.5"/></svg>
+              <div style="font-size:9px;color:#F5C842;font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-family:'DM Sans',sans-serif">Beh</div>
+            </button>
+            <button id="act-bike" onclick="setActivity('bike')" style="flex:1;background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:12px 4px;cursor:pointer;text-align:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 5px"><circle cx="6" cy="17.5" r="2.5"/><circle cx="18" cy="17.5" r="2.5"/><polyline points="6,15 10,7 14,12.5 16.5,8 18,9"/><circle cx="14" cy="5.5" r="1.5"/><line x1="14" y1="7" x2="15.5" y2="9.5"/></svg>
+              <div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-family:'DM Sans',sans-serif">Bike</div>
+            </button>
+            <button id="act-gym-btn" onclick="setActivity('gym')" style="flex:1;background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:12px 4px;cursor:pointer;text-align:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 5px"><circle cx="12" cy="4" r="1.5"/><path d="M8 9h8"/><path d="M6 7v2M18 7v2"/><path d="M10 9v3l-2 5M14 9v3l2 5"/><path d="M10 12h4"/></svg>
+              <div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-family:'DM Sans',sans-serif">Gym</div>
+            </button>
           </div>
-          <div id="weather-badge" style="display:none;align-items:center;gap:6px;background:#111;border-radius:20px;padding:5px 12px">
-            <span id="w-icon" style="font-size:14px"></span>
-            <span id="w-temp" style="font-size:12px;color:#F5C842;font-family:'DM Mono',monospace;font-weight:500"></span>
-            <span id="w-desc" style="font-size:11px;color:rgba(255,255,255,.6)"></span>
-            <span id="w-wind" style="font-size:11px;color:rgba(255,255,255,.4)"></span>
+          <button id="bstart" onclick="startRun()" style="width:100%;height:48px;background:#1a1a1a;border:none;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#F5C842"><polygon points="5,3 19,12 5,21"/></svg>
+            <span style="font-size:13px;font-weight:800;color:#F5C842;letter-spacing:.3px;font-family:'Syne',sans-serif">Štart</span>
+          </button>
+          <p style="font-size:10px;color:#bbb;text-align:center;margin-top:8px;font-family:'DM Mono',monospace">GPS vyžaduje povolenie · OpenStreetMap</p>
+        </div>
+      </div>
+
+      <!-- SCREEN 2: aktívne nahrávanie -->
+      <div id="map-active" style="display:none;flex-direction:column;height:100vh;max-height:100vh">
+        <!-- Yellow header -->
+        <div id="map-active-header" style="background:#F5C842;padding:10px 16px 9px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="pdot" id="mdot" style="background:#111"></span>
+            <span id="mst" style="font-size:10px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace">Pripravený</span>
+          </div>
+          <button onclick="toggleMapView()" style="background:none;border:none;font-size:10px;color:rgba(0,0,0,.5);cursor:pointer;font-family:'DM Sans',sans-serif">mapa ↙</button>
+        </div>
+        <!-- Čas -->
+        <div style="background:#111;padding:18px 16px 14px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,.07);flex-shrink:0">
+          <div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;font-family:'DM Mono',monospace">čas aktivity</div>
+          <div id="lvt" style="font-size:38px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;letter-spacing:2px">0:00</div>
+        </div>
+        <!-- Grid 2x2 štatistiky -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:16px;background:#111;flex:1">
+          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:20px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div id="lvkm" style="font-size:28px;font-weight:900;color:#F5C842;font-family:'DM Mono',monospace;line-height:1">0.00</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-family:'DM Mono',monospace">km</div>
+          </div>
+          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:20px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div id="lvp" style="font-size:28px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1">--:--</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-family:'DM Mono',monospace">pace /km</div>
+          </div>
+          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:20px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div id="lv-hr" style="font-size:28px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1">—</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-family:'DM Mono',monospace">bpm</div>
+          </div>
+          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:20px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div id="lv-kcal" style="font-size:28px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1">0</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-family:'DM Mono',monospace">kcal</div>
           </div>
         </div>
-        <div class="lrow">
-          <div class="ls"><div class="lv" id="lvkm">0.00</div><div class="ll">km</div></div>
-          <div class="ls"><div class="lv" id="lvt">0:00</div><div class="ll">čas</div></div>
-          <div class="ls"><div class="lv" id="lvp">--:--</div><div class="ll">pace</div></div>
+        <!-- Tlačidlá -->
+        <div style="display:flex;gap:10px;padding:12px 16px 24px;background:#111;flex-shrink:0">
+          <button id="bstop" onclick="stopRun()" style="width:48px;height:48px;background:rgba(255,255,255,.1);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="rgba(255,255,255,.6)"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+          </button>
+          <button id="bpause" onclick="pauseRun()" style="flex:1;height:48px;background:#e84c4c;border:none;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="8" y1="5" x2="8" y2="19"/><line x1="16" y1="5" x2="16" y2="19"/></svg>
+            <span style="font-size:12px;font-weight:800;color:#fff;font-family:'Syne',sans-serif;letter-spacing:.3px">PAUZA</span>
+          </button>
         </div>
-        <div id="map"></div>
-        <div style="display:flex;gap:8px;margin-bottom:1rem" id="activity-btns">
-          <button class="pill active" id="act-run" onclick="setActivity('run')" style="display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="4" r="1.8"/><path d="M7 22l4.5-8 2.5 3.5"/><path d="M14.5 17.5l2-5.5 2.5 1.5"/><path d="M7 22l2-4"/><path d="M10 10l3-3.5 3 2.5"/></svg> Beh</button>
-          <button class="pill" id="act-bike" onclick="setActivity('bike')" style="display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17.5" r="2.5"/><circle cx="18" cy="17.5" r="2.5"/><polyline points="6,15 10,7 14,12.5 16.5,8 18,9"/><circle cx="14" cy="5.5" r="1.5"/><line x1="14" y1="7" x2="15.5" y2="9.5"/></svg> Bike</button>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:1rem">
-          <button class="btn bp" id="bstart" onclick="startRun()">▶ Spustiť</button>
-          <button class="btn bd" id="bstop" style="display:none" onclick="stopRun()">■ Zastaviť &amp; uložiť</button>
-        </div>
-        <p style="font-size:11px;color:var(--text3);margin-top:.75rem;font-family:'DM Mono',monospace">GPS vyžaduje povolenie · OpenStreetMap</p>
       </div>
     </div>
 
@@ -1108,6 +1169,24 @@ async function fetchWeather(lat, lng) {
 
 function setActivity(a){
   currentActivity=a;
+  // Style new buttons
+  ['run','bike','gym'].forEach(t=>{
+    const btn = document.getElementById('act-'+t) || document.getElementById('act-'+t+'-btn');
+    if(!btn) return;
+    const isActive = t===a;
+    btn.style.background = isActive ? '#111' : '#fff';
+    btn.style.border = isActive ? 'none' : '0.5px solid rgba(0,0,0,.08)';
+    const svg = btn.querySelector('svg');
+    if(svg) svg.setAttribute('stroke', isActive ? '#F5C842' : '#aaa');
+    const lbl = btn.querySelector('div');
+    if(lbl) lbl.style.color = isActive ? '#F5C842' : '#aaa';
+  });
+  // Update active header
+  const hdr = document.getElementById('map-active-header');
+  const mst = document.getElementById('mst');
+  if(mst) mst.textContent = a==='run'?'Beh · nahráva':a==='bike'?'Bike · nahráva':'Gym · nahráva';
+  // old code continues:
+  currentActivity=a;
   document.getElementById('act-run').classList.toggle('active',a==='run');
   document.getElementById('act-bike').classList.toggle('active',a==='bike');
   document.getElementById('bstart').textContent=a==='run'?'▶ Spustiť beh':'▶ Spustiť jazdu';
@@ -1127,6 +1206,12 @@ function initMap(){
 }
 
 function startRun(){
+  // Switch to active screen
+  const sel = document.getElementById('map-select');
+  const act = document.getElementById('map-active');
+  if(sel) sel.style.display='none';
+  if(act){ act.style.display='flex'; }
+  document.getElementById('mdot').classList.add('rec');
   if(!navigator.geolocation){toast('GPS nie je dostupné.');return;}
   lCoords=[];lDist=0;sTime=Date.now();rLine&&rLine.setLatLngs([]);
   document.getElementById('bstart').style.display='none';document.getElementById('bstop').style.display='inline-flex';
@@ -1659,6 +1744,32 @@ async function deleteWeight(id){
     renderWeight();
     toast('Záznam zmazaný','green');
   }catch(e){ toast('Chyba: '+e.message,'err'); }
+}
+function pauseRun(){
+  const btn=document.getElementById('bpause');
+  if(!btn) return;
+  if(window._paused){
+    window._paused=false;
+    btn.style.background='#e84c4c';
+    btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="8" y1="5" x2="8" y2="19"/><line x1="16" y1="5" x2="16" y2="19"/></svg> <span style="font-size:12px;font-weight:800;color:#fff">PAUZA</span>';
+  } else {
+    window._paused=true;
+    btn.style.background='#2D8A4E';
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="5,3 19,12 5,21"/></svg> <span style="font-size:12px;font-weight:800;color:#fff">POKRAČOVAŤ</span>';
+  }
+}
+
+function toggleMapView(){
+  const act = document.getElementById('map-active');
+  const sel = document.getElementById('map-select');
+  if(!act||!sel) return;
+  const showingStats = act.style.display!=='none';
+  if(showingStats){
+    act.style.display='none';
+    sel.style.display='flex';
+    const m = document.getElementById('map');
+    if(m) m.style.height='100%';
+  }
 }
 </script>
 </body>
