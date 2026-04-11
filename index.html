@@ -157,7 +157,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .act-tile{background:var(--bg2);border:2px solid var(--border2);border-radius:var(--r);padding:1.25rem 1rem;text-align:center;cursor:pointer;transition:all .2s}
 .act-tile:hover{border-color:#F5C842;transform:translateY(-2px)}
 .act-tile.active{background:#111;border-color:#111}
-.act-tile-ico{font-size:28px;margin-bottom:6px}
+.act-tile-ico{display:flex;align-items:center;justify-content:center;margin-bottom:6px;color:var(--text2)}
+.act-tile.active .act-tile-ico{color:#F5C842}
 .act-tile-lbl{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
 .act-tile.active .act-tile-lbl{color:#F5C842}
 @media(max-width:768px){.act-tile{padding:1rem .75rem}.act-tile-ico{font-size:24px}.act-tile-lbl{font-size:11px}}
@@ -180,7 +181,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .act-tile{background:var(--bg2);border:2px solid var(--border2);border-radius:var(--r);padding:1.25rem 1rem;text-align:center;cursor:pointer;transition:all .2s}
 .act-tile:hover{border-color:#F5C842;transform:translateY(-2px)}
 .act-tile.active{background:#111;border-color:#111}
-.act-tile-ico{font-size:28px;margin-bottom:6px}
+.act-tile-ico{display:flex;align-items:center;justify-content:center;margin-bottom:6px;color:var(--text2)}
+.act-tile.active .act-tile-ico{color:#F5C842}
 .act-tile-lbl{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
 .act-tile.active .act-tile-lbl{color:#F5C842}
 @media(max-width:768px){.act-tile{padding:1rem .75rem}.act-tile-ico{font-size:24px}.act-tile-lbl{font-size:11px}}
@@ -197,7 +199,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 @media(max-width:768px){
   html,body{overflow-x:hidden}
   .sidebar{display:none!important}
-  .main{margin-left:0!important;padding:74px 1rem 80px!important;max-width:100%!important;overflow-x:hidden}
+  .main{margin-left:0!important;padding:74px 1rem 90px!important;max-width:100%!important;overflow-x:hidden}
   .mhdr{display:flex}.bnav{display:block}.msync{display:flex}
   .pt{font-size:22px}.ph{margin-bottom:1.25rem}
   .srow{gap:8px}.sv{font-size:18px}.sc{padding:.75rem .625rem}
@@ -310,15 +312,15 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 
       <div class="act-tiles">
         <div class="act-tile active" id="tile-run" onclick="setAddActivity('run')">
-          <div class="act-tile-ico">🏃</div>
+          <div class="act-tile-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="4" r="1.8"/><path d="M7 22l4.5-8 2.5 3.5"/><path d="M14.5 17.5l2-5.5 2.5 1.5"/><path d="M7 22l2-4"/><path d="M10 10l3-3.5 3 2.5"/></svg></div>
           <div class="act-tile-lbl">Beh</div>
         </div>
         <div class="act-tile" id="tile-bike" onclick="setAddActivity('bike')">
-          <div class="act-tile-ico">🚴</div>
+          <div class="act-tile-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17.5" r="2.5"/><circle cx="18" cy="17.5" r="2.5"/><polyline points="6,15 10,7 14,12.5 16.5,8 18,9"/><circle cx="14" cy="5.5" r="1.5"/><line x1="14" y1="7" x2="15.5" y2="9.5"/></svg></div>
           <div class="act-tile-lbl">Bike</div>
         </div>
         <div class="act-tile" id="tile-gym" onclick="setAddActivity('gym')">
-          <div class="act-tile-ico">🏋️</div>
+          <div class="act-tile-ico"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6.5a4 4 0 018 0"/><path d="M8 6.5H5.5M15.5 6.5H19"/><path d="M5.5 6.5v3M19 6.5v3"/><path d="M5.5 9.5h13"/><path d="M9 9.5v10M15 9.5v10"/></svg></div>
           <div class="act-tile-lbl">Gym</div>
         </div>
       </div>
@@ -419,8 +421,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
         </div>
         <div id="map"></div>
         <div style="display:flex;gap:8px;margin-bottom:1rem" id="activity-btns">
-          <button class="pill active" id="act-run" onclick="setActivity('run')">🏃 Beh</button>
-          <button class="pill" id="act-bike" onclick="setActivity('bike')">🚴 Bike</button>
+          <button class="pill active" id="act-run" onclick="setActivity('run')" style="display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="4" r="1.8"/><path d="M7 22l4.5-8 2.5 3.5"/><path d="M14.5 17.5l2-5.5 2.5 1.5"/><path d="M7 22l2-4"/><path d="M10 10l3-3.5 3 2.5"/></svg> Beh</button>
+          <button class="pill" id="act-bike" onclick="setActivity('bike')" style="display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17.5" r="2.5"/><circle cx="18" cy="17.5" r="2.5"/><polyline points="6,15 10,7 14,12.5 16.5,8 18,9"/><circle cx="14" cy="5.5" r="1.5"/><line x1="14" y1="7" x2="15.5" y2="9.5"/></svg> Bike</button>
         </div>
         <div style="display:flex;gap:10px;margin-top:1rem">
           <button class="btn bp" id="bstart" onclick="startRun()">▶ Spustiť</button>
@@ -639,16 +641,28 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 
   <nav class="bnav">
     <div class="bni-row">
-      <button class="bni active" onclick="go('add')"><span class="bnic">＋</span>Aktivita</button>
-      <button class="bni" onclick="go('map')"><span class="bnic">◎</span>Mapa</button>
-      <button class="bni" onclick="go('history')"><span class="bnic">≡</span>História</button>
-      <button class="bni" onclick="go('charts')"><span class="bnic">▦</span>Grafy</button>
-      <button class="bni" onclick="go('food')"><span class="bnic">◈</span>Jedlo</button>
-      <button class="bni" onclick="go('hydration')"><span class="bnic">💧</span>Voda</button>
-      <button class="bni" onclick="go('weight')"><span class="bnic">⚖️</span>Váha</button>
+      <button class="bni active" id="bn-history" onclick="go('history')">
+        <div class="bnic-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+        Prehľad
+      </button>
+      <button class="bni" id="bn-food" onclick="go('food')">
+        <div class="bnic-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M7 12h10M10 18h4"/></svg></div>
+        Jedlo
+      </button>
+      <button class="bni-fab" id="bn-add" onclick="go('add')">
+        <div class="fab-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C842" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        Aktivita
+      </button>
+      <button class="bni" id="bn-hydration" onclick="go('hydration')">
+        <div class="bnic-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-2.5 4-5 6-5 10a5 5 0 0010 0c0-4-2.5-6-5-10z"/></svg></div>
+        Voda
+      </button>
+      <button class="bni" id="bn-weight" onclick="go('weight')">
+        <div class="bnic-wrap"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+        Váha
+      </button>
     </div>
-  </nav>
-</div>
+  </nav></div>
 
 <div class="toast" id="toast"></div>
 
@@ -848,7 +862,14 @@ async function loadRuns(){
 function go(p){
   const ps=['add','map','history','charts','food','hydration','weight'];
   document.querySelectorAll('.ni').forEach((e,i)=>e.classList.toggle('active',ps[i]===p));
-  document.querySelectorAll('.bni').forEach((e,i)=>e.classList.toggle('active',ps[i]===p));
+  document.querySelectorAll('.bni, .bni-fab').forEach(e=>{
+    e.classList.remove('active');
+    const id = e.id;
+    if(id==='bn-'+p || (p==='add'&&id==='bn-add') || (p==='history'&&id==='bn-history') || (p==='charts'&&id==='bn-history') || (p==='map'&&id==='bn-add')) e.classList.add('active');
+    if(p==='food'&&id==='bn-food') e.classList.add('active');
+    if(p==='hydration'&&id==='bn-hydration') e.classList.add('active');
+    if(p==='weight'&&id==='bn-weight') e.classList.add('active');
+  });
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   document.getElementById('p-'+p).classList.add('active');
   if(p==='history')renderHistory();
@@ -1161,7 +1182,7 @@ function renderHistory(){
     const feelEmoji=r.feeling===3?'💪':r.feeling===2?'😐':'😴';
     return `<div class="rrow" id="rr-${r.id}">
       <div class="rnum">${runs.length-i}</div>
-      <div class="rico">${r.activity==='bike'?'🚴':r.activity==='gym'?'🏋️':'🏃'}</div>
+      <div class="rico">${r.activity==='bike'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17.5" r="2.5"/><circle cx="18" cy="17.5" r="2.5"/><polyline points="6,15 10,7 14,12.5 16.5,8 18,9"/><circle cx="14" cy="5.5" r="1.5"/><line x1="14" y1="7" x2="15.5" y2="9.5"/></svg>':r.activity==='gym'?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6.5a4 4 0 018 0"/><path d="M8 6.5H5.5M15.5 6.5H19"/><path d="M5.5 6.5v3M19 6.5v3"/><path d="M5.5 9.5h13"/><path d="M9 9.5v10M15 9.5v10"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="4" r="1.8"/><path d="M7 22l4.5-8 2.5 3.5"/><path d="M14.5 17.5l2-5.5 2.5 1.5"/><path d="M7 22l2-4"/><path d="M10 10l3-3.5 3 2.5"/></svg>'}</div>
       <div class="rinfo">
         <div class="rt">${r.note||'Aktivita'}${r.feeling?' '+feelEmoji:''}</div>
         <div class="rm">${r.date}${r.pace?' · '+r.pace+' min/km':''}${r.time?' · '+r.time+' min':''}${r.elev?' · ↑'+r.elev+'m':''}${r.hr_avg?' · ❤️ '+r.hr_avg+' BPM':''}${r.weather?' · '+r.weather:''}</div>
