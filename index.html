@@ -515,7 +515,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
           <div style="font-size:12px;margin-top:4px" id="w-diff"></div>
         </div>
         <div class="card" style="margin-bottom:0;padding:1.25rem">
-          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">BMI</div>
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">BMI <span style="text-transform:none;font-size:10px">(Index telesnej hmotnosti)</span></div>
           <div style="display:flex;align-items:baseline;gap:4px">
             <span style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800" id="w-bmi">—</span>
           </div>
@@ -1491,9 +1491,18 @@ function renderWeight(){
   // Update diff
   const diffEl = document.getElementById('w-diff');
   if(diffEl && latest && prev){
-    const diff = (latest.weight_kg - prev.weight_kg).toFixed(1);
+    const diff = parseFloat((latest.weight_kg - prev.weight_kg).toFixed(1));
     const arrow = diff > 0 ? '↑' : '↓';
-    const color = diff > 0 ? '#e84c4c' : '#2D8A4E';
+    const goal = parseFloat(localStorage.getItem('tf_weight_goal'))||0;
+    let color = 'var(--text2)';
+    if(goal && diff !== 0){
+      const losingWeight = latest.weight_kg > goal; // goal is lower = wants to lose
+      const gainingWeight = latest.weight_kg < goal; // goal is higher = wants to gain
+      if(losingWeight && diff < 0) color = '#2D8A4E'; // losing = green arrow down
+      if(losingWeight && diff > 0) color = '#e84c4c'; // gaining when should lose = red
+      if(gainingWeight && diff > 0) color = '#2D8A4E'; // gaining = green arrow up
+      if(gainingWeight && diff < 0) color = '#e84c4c'; // losing when should gain = red
+    }
     diffEl.innerHTML = `<span style="color:${color};font-weight:600">${arrow} ${Math.abs(diff)} kg</span> <span style="color:var(--text3)">oproti predtým</span>`;
   } else if(diffEl){ diffEl.textContent=''; }
 
@@ -1510,16 +1519,21 @@ function renderWeight(){
     if(bmiLbl) bmiLbl.innerHTML='<span style="color:var(--text3);font-size:11px">Zadaj výšku vyššie</span>';
   }
 
-  // Goal progress
+  // Goal progress - smart: detect if losing or gaining
   const goalEl = document.getElementById('w-to-goal');
   if(goalEl && latest && goal){
-    const diff = (latest.weight_kg - goal).toFixed(1);
-    if(diff <= 0){
+    const diff = parseFloat((latest.weight_kg - goal).toFixed(1));
+    const absDiff = Math.abs(diff);
+    if(absDiff < 0.2){
       goalEl.innerHTML='<span style="color:#2D8A4E;font-weight:600">✅ Cieľ dosiahnutý!</span>';
+    } else if(diff > 0){
+      // Current > goal = need to lose weight
+      goalEl.innerHTML=`<span style="color:var(--text3)">Schudnúť </span><span style="color:#F5C842;font-weight:600">${absDiff} kg</span>`;
     } else {
-      goalEl.innerHTML=`<span style="color:var(--text3)">Zostáva </span><span style="color:#F5C842;font-weight:600">${diff} kg</span>`;
+      // Current < goal = need to gain weight
+      goalEl.innerHTML=`<span style="color:var(--text3)">Pribrať </span><span style="color:#3a8cc4;font-weight:600">${absDiff} kg</span>`;
     }
-  } else if(goalEl){ goalEl.textContent=''; }
+  } else if(goalEl){ goalEl.innerHTML='<span style="color:var(--text3);font-size:11px">Nastav cieľ vľavo</span>'; }
 
   // Chart
   const canvas = document.getElementById('w-chart');
