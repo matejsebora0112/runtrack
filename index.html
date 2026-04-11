@@ -270,6 +270,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <div class="ni" onclick="go('charts')"><span class="nic">▦</span>Grafy</div>
       <div class="ni" onclick="go('food')"><span class="nic">◈</span>Jedlo</div>
       <div class="ni" onclick="go('hydration')"><span class="nic">💧</span>Hydratácia</div>
+      <div class="ni" onclick="go('weight')"><span class="nic">⚖️</span>Hmotnosť</div>
     </div>
     <div class="sf">v1.0 · TrackFit</div>
   </nav>
@@ -499,6 +500,82 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       </div>
     </div>
 
+    <!-- WEIGHT -->
+    <div id="p-weight" class="page">
+      <div class="ph"><h1 class="pt">Hmotnosť</h1><p class="ps">Sleduj svoju váhu v čase</p></div>
+
+      <!-- Top stats bento grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem">
+        <div class="card" style="margin-bottom:0;padding:1.25rem">
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Aktuálna váha</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <span style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:#F5C842" id="w-current">—</span>
+            <span style="font-size:13px;color:var(--text3)">kg</span>
+          </div>
+          <div style="font-size:12px;margin-top:4px" id="w-diff"></div>
+        </div>
+        <div class="card" style="margin-bottom:0;padding:1.25rem">
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">BMI</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <span style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800" id="w-bmi">—</span>
+          </div>
+          <div style="font-size:12px;margin-top:4px" id="w-bmi-lbl"></div>
+        </div>
+        <div class="card" style="margin-bottom:0;padding:1.25rem">
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Cieľová váha</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="number" id="w-goal" class="fi" placeholder="70" min="30" max="300" step="0.1" style="flex:1;margin:0;font-family:'Syne',sans-serif;font-size:20px;font-weight:700" onchange="saveWeightGoal()">
+            <span style="font-size:13px;color:var(--text3)">kg</span>
+          </div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px" id="w-to-goal"></div>
+        </div>
+        <div class="card" style="margin-bottom:0;padding:1.25rem">
+          <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Výška (pre BMI)</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="number" id="w-height" class="fi" placeholder="175" min="100" max="250" step="1" style="flex:1;margin:0;font-family:'Syne',sans-serif;font-size:20px;font-weight:700" onchange="saveHeight()">
+            <span style="font-size:13px;color:var(--text3)">cm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+          <div class="ct" style="margin-bottom:0">Vývoj váhy</div>
+          <div style="display:flex;gap:6px">
+            <button class="pill active" id="wp-30" onclick="setWeightPeriod(30,this)">30 dní</button>
+            <button class="pill" id="wp-90" onclick="setWeightPeriod(90,this)">3 mesiace</button>
+            <button class="pill" id="wp-0" onclick="setWeightPeriod(0,this)">Všetko</button>
+          </div>
+        </div>
+        <div class="cw" style="height:200px"><canvas id="w-chart"></canvas></div>
+      </div>
+
+      <!-- Add new weight -->
+      <div class="card">
+        <div class="ct">Zaznamenať váhu</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+          <div>
+            <label class="fl">Dátum</label>
+            <input type="date" id="w-date" class="fi" style="margin:0">
+          </div>
+          <div>
+            <label class="fl">Váha (kg)</label>
+            <input type="number" id="w-input" class="fi" placeholder="75.5" min="30" max="300" step="0.1" style="margin:0">
+          </div>
+        </div>
+        <label class="fl">Poznámka (voliteľné)</label>
+        <input type="text" id="w-note" class="fi" placeholder="Ráno nalačno..." style="margin-bottom:0">
+        <button class="btn bp bfull" id="w-save-btn" onclick="saveWeight()">Uložiť váhu →</button>
+      </div>
+
+      <!-- History -->
+      <div class="card">
+        <div class="ct">História</div>
+        <div id="w-log"></div>
+      </div>
+    </div>
+
     <!-- HYDRATION -->
     <div id="p-hydration" class="page">
       <div class="ph"><h1 class="pt">Hydratácia</h1><p class="ps">Sleduj denný príjem vody</p></div>
@@ -567,6 +644,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <button class="bni" onclick="go('history')"><span class="bnic">≡</span>História</button>
       <button class="bni" onclick="go('charts')"><span class="bnic">▦</span>Grafy</button>
       <button class="bni" onclick="go('food')"><span class="bnic">◈</span>Jedlo</button>
+      <button class="bni" onclick="go('hydration')"><span class="bnic">💧</span>Voda</button>
+      <button class="bni" onclick="go('weight')"><span class="bnic">⚖️</span>Váha</button>
+    </div>
   </nav>
 </div>
 
@@ -742,6 +822,8 @@ function showApp(){
   ['ikm','ih','im'].forEach(id=>document.getElementById(id).addEventListener('input',calcPace));
   loadRuns();
   loadHydration();
+  loadWeightData();
+  const wd=document.getElementById('w-date');if(wd)wd.valueAsDate=new Date();
 }
 
 async function api(path,opts={}){
@@ -764,7 +846,7 @@ async function loadRuns(){
 }
 
 function go(p){
-  const ps=['add','map','history','charts','food','hydration'];
+  const ps=['add','map','history','charts','food','hydration','weight'];
   document.querySelectorAll('.ni').forEach((e,i)=>e.classList.toggle('active',ps[i]===p));
   document.querySelectorAll('.bni').forEach((e,i)=>e.classList.toggle('active',ps[i]===p));
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
@@ -773,6 +855,7 @@ function go(p){
   if(p==='charts')renderCharts();
   if(p==='map')initMap();
   if(p==='hydration')renderHydration();
+  if(p==='weight')renderWeight();
 }
 
 function toast(msg,type=''){const e=document.getElementById('toast');e.textContent=msg;e.className='toast show '+type;setTimeout(()=>e.className='toast',3000);}
@@ -1333,6 +1416,211 @@ async function saveHydrationGoal(){
   hydrationGoal = parseFloat(document.getElementById('h-goal-input').value)||2500;
   renderHydration();
   toast('Cieľ uložený: '+hydrationGoal+'ml','green');
+}
+
+// ---- WEIGHT TRACKING ----
+let weightLog = [];
+let weightPeriod = 30;
+
+function saveHeight(){
+  const h = parseFloat(document.getElementById('w-height').value)||0;
+  if(h>0) localStorage.setItem('tf_height', h);
+  renderWeight();
+}
+
+function saveWeightGoal(){
+  const g = parseFloat(document.getElementById('w-goal').value)||0;
+  if(g>0) localStorage.setItem('tf_weight_goal', g);
+  renderWeight();
+}
+
+function calcBMI(weight, heightCm){
+  if(!weight||!heightCm) return null;
+  const h = heightCm/100;
+  return weight/(h*h);
+}
+
+function getBMILabel(bmi){
+  if(!bmi) return {lbl:'—', color:'var(--text3)'};
+  if(bmi < 18.5) return {lbl:'Podváha', color:'#3a8cc4'};
+  if(bmi < 25)   return {lbl:'Normálna váha', color:'#2D8A4E'};
+  if(bmi < 30)   return {lbl:'Nadváha', color:'#e8925a'};
+  return {lbl:'Obezita', color:'#e84c4c'};
+}
+
+async function loadWeightData(){
+  try{
+    const rows = await api('weights?user_id=eq.'+user.id+'&order=date.desc&select=*');
+    weightLog = rows;
+    // Load saved height and goal
+    const h = localStorage.getItem('tf_height');
+    const g = localStorage.getItem('tf_weight_goal');
+    if(h){ const el=document.getElementById('w-height'); if(el) el.value=h; }
+    if(g){ const el=document.getElementById('w-goal'); if(el) el.value=g; }
+    renderWeight();
+  }catch(e){ console.warn('Weight load error:',e); }
+}
+
+function setWeightPeriod(d, btn){
+  weightPeriod = d;
+  document.querySelectorAll('#p-weight .pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderWeight();
+}
+
+function renderWeight(){
+  const heightCm = parseFloat(localStorage.getItem('tf_height'))||0;
+  const goal = parseFloat(localStorage.getItem('tf_weight_goal'))||0;
+
+  // Filter by period
+  let filtered = [...weightLog];
+  if(weightPeriod > 0){
+    const cut = new Date(Date.now()-weightPeriod*86400000).toISOString().slice(0,10);
+    filtered = weightLog.filter(r=>r.date>=cut);
+  }
+  const sorted = [...filtered].sort((a,b)=>a.date.localeCompare(b.date));
+
+  // Current weight (most recent)
+  const latest = weightLog.length ? weightLog[0] : null;
+  const prev = weightLog.length > 1 ? weightLog[1] : null;
+
+  // Update current weight
+  const curEl = document.getElementById('w-current');
+  if(curEl) curEl.textContent = latest ? latest.weight_kg : '—';
+
+  // Update diff
+  const diffEl = document.getElementById('w-diff');
+  if(diffEl && latest && prev){
+    const diff = (latest.weight_kg - prev.weight_kg).toFixed(1);
+    const arrow = diff > 0 ? '↑' : '↓';
+    const color = diff > 0 ? '#e84c4c' : '#2D8A4E';
+    diffEl.innerHTML = `<span style="color:${color};font-weight:600">${arrow} ${Math.abs(diff)} kg</span> <span style="color:var(--text3)">oproti predtým</span>`;
+  } else if(diffEl){ diffEl.textContent=''; }
+
+  // BMI
+  const bmiEl = document.getElementById('w-bmi');
+  const bmiLbl = document.getElementById('w-bmi-lbl');
+  if(latest && heightCm){
+    const bmi = calcBMI(latest.weight_kg, heightCm);
+    const info = getBMILabel(bmi);
+    if(bmiEl){ bmiEl.textContent=bmi?bmi.toFixed(1):'—'; bmiEl.style.color=info.color; }
+    if(bmiLbl){ bmiLbl.innerHTML=`<span style="color:${info.color};font-weight:600">${info.lbl}</span>`; }
+  } else {
+    if(bmiEl) bmiEl.textContent='—';
+    if(bmiLbl) bmiLbl.innerHTML='<span style="color:var(--text3);font-size:11px">Zadaj výšku vyššie</span>';
+  }
+
+  // Goal progress
+  const goalEl = document.getElementById('w-to-goal');
+  if(goalEl && latest && goal){
+    const diff = (latest.weight_kg - goal).toFixed(1);
+    if(diff <= 0){
+      goalEl.innerHTML='<span style="color:#2D8A4E;font-weight:600">✅ Cieľ dosiahnutý!</span>';
+    } else {
+      goalEl.innerHTML=`<span style="color:var(--text3)">Zostáva </span><span style="color:#F5C842;font-weight:600">${diff} kg</span>`;
+    }
+  } else if(goalEl){ goalEl.textContent=''; }
+
+  // Chart
+  const canvas = document.getElementById('w-chart');
+  if(canvas && sorted.length > 0){
+    const ex = Chart.getChart('w-chart'); if(ex) ex.destroy();
+    const labels = sorted.map(r=>r.date.slice(5));
+    const data = sorted.map(r=>r.weight_kg);
+    new Chart(canvas, {
+      type:'line',
+      data:{
+        labels,
+        datasets:[
+          {
+            data,
+            borderColor:'#F5C842',
+            backgroundColor:'rgba(245,200,66,0.08)',
+            borderWidth:2.5,
+            pointBackgroundColor:'#F5C842',
+            pointRadius:4,
+            pointHoverRadius:6,
+            fill:true,
+            tension:0.4
+          },
+          // Goal line
+          ...(goal ? [{
+            data: sorted.map(()=>goal),
+            borderColor:'rgba(45,138,78,0.5)',
+            borderWidth:1.5,
+            borderDash:[6,4],
+            pointRadius:0,
+            fill:false,
+            tension:0
+          }] : [])
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{ticks:{color:'#888',font:{size:10,family:'DM Mono'}},grid:{color:'rgba(0,0,0,0.04)'}},
+          y:{
+            ticks:{color:'#888',font:{size:10,family:'DM Mono'},callback:v=>v+'kg'},
+            grid:{color:'rgba(0,0,0,0.04)'},
+            suggestedMin: sorted.length ? Math.min(...data)-2 : 60,
+            suggestedMax: sorted.length ? Math.max(...data)+2 : 100
+          }
+        }
+      }
+    });
+  } else if(canvas){
+    const ex = Chart.getChart('w-chart'); if(ex) ex.destroy();
+  }
+
+  // History log
+  const log = document.getElementById('w-log');
+  if(log){
+    if(!weightLog.length){
+      log.innerHTML='<div class="empty" style="padding:1.5rem 0;text-align:center;color:var(--text3)">⚖️ Zatiaľ žiadne záznamy</div>';
+    } else {
+      log.innerHTML = weightLog.slice(0,15).map(r=>`
+        <div class="h-log-row">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#F5C842">${r.weight_kg} kg</span>
+            ${r.note?`<span style="font-size:12px;color:var(--text3)">${r.note}</span>`:''}
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${r.date}</span>
+            <button class="delbtn" onclick="deleteWeight('${r.id}')">✕</button>
+          </div>
+        </div>`).join('');
+    }
+  }
+}
+
+async function saveWeight(){
+  const date = document.getElementById('w-date').value;
+  const kg = parseFloat(document.getElementById('w-input').value);
+  const note = document.getElementById('w-note').value;
+  if(!date||!kg){ toast('Vyplň dátum a váhu!'); return; }
+  const btn = document.getElementById('w-save-btn');
+  btn.disabled=true; btn.innerHTML='<span class="loader" style="border-color:rgba(255,255,255,.3);border-top-color:#fff"></span> Ukladám...';
+  try{
+    const s = await api('weights',{method:'POST',body:JSON.stringify({user_id:user.id,date,weight_kg:kg,note:note||null})});
+    weightLog.unshift(s[0]);
+    document.getElementById('w-input').value='';
+    document.getElementById('w-note').value='';
+    document.getElementById('w-date').valueAsDate=new Date();
+    renderWeight();
+    toast('✅ Váha uložená!','green');
+  }catch(e){ toast('Chyba: '+e.message,'err'); }
+  btn.disabled=false; btn.textContent='Uložiť váhu →';
+}
+
+async function deleteWeight(id){
+  try{
+    await api('weights?id=eq.'+id,{method:'DELETE',headers:{'Prefer':'return=minimal'}});
+    weightLog = weightLog.filter(r=>String(r.id)!==String(id));
+    renderWeight();
+    toast('Záznam zmazaný','green');
+  }catch(e){ toast('Chyba: '+e.message,'err'); }
 }
 </script>
 </body>
