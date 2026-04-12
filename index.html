@@ -443,7 +443,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       </div>
 
       <!-- SCREEN 2: aktívne nahrávanie - fixed full screen -->
-      <div id="map-active" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;flex-direction:column;background:#111">
+      <div id="map-active" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;flex-direction:column;background:#111;overflow:hidden">
         <div id="map-active-header" style="background:#F5C842;padding:12px 16px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
           <div style="display:flex;align-items:center;gap:6px">
             <span class="pdot" id="mdot"></span>
@@ -1189,7 +1189,7 @@ function setActivity(a){
   currentActivity=a;
   document.getElementById('act-run').classList.toggle('active',a==='run');
   document.getElementById('act-bike').classList.toggle('active',a==='bike');
-  document.getElementById('bstart').textContent=a==='run'?'▶ Spustiť beh':'▶ Spustiť jazdu';
+  // Štart button text stays Štart
   if(rLine)rLine.setStyle({color:a==='bike'?'#3a8cc4':'#F5C842'});
 }
 
@@ -1217,14 +1217,20 @@ function startRun(){
   if(act){ act.style.display='flex'; }
   document.getElementById('mdot').classList.add('rec');
   if(!navigator.geolocation){toast('GPS nie je dostupné.');return;}
-  lCoords=[];lDist=0;sTime=Date.now();rLine&&rLine.setLatLngs([]);
+  lCoords=[];lDist=0;el=0;sTime=Date.now();window._pausedMs=0;window._pauseStart=0;rLine&&rLine.setLatLngs([]);
   document.getElementById('bstart').style.display='none';document.getElementById('bstop').style.display='inline-flex';
   document.getElementById('mdot').classList.add('rec');
   document.getElementById('mst').textContent=currentActivity==='run'?'Nahrávam beh...':'Nahrávam jazdu...';
   document.getElementById('activity-btns').style.opacity='0.4';
   document.getElementById('activity-btns').style.pointerEvents='none';
   if(rLine)rLine.setStyle({color:currentActivity==='bike'?'#3a8cc4':'#F5C842'});
-  tInt=setInterval(()=>{const e=Math.floor((Date.now()-sTime)/1000);document.getElementById('lvt').textContent=Math.floor(e/60)+':'+(e%60<10?'0':'')+e%60;},1000);
+  tInt=setInterval(()=>{
+    if(window._paused) return;
+    el=Math.floor((Date.now()-sTime-window._pausedMs)/1000);
+    document.getElementById('lvt').textContent=Math.floor(el/60)+':'+(el%60<10?'0':'')+el%60;
+    const kcalEl=document.getElementById('lv-kcal');
+    if(kcalEl){const mins=el/60;kcalEl.textContent=Math.round(currentActivity==='bike'?mins*8:currentActivity==='run'?mins*10:mins*6);}
+  },1000);
   wid=navigator.geolocation.watchPosition(pos=>{
     const lat=pos.coords.latitude,lng=pos.coords.longitude;
     if(lCoords.length>0){const p=lCoords[lCoords.length-1];lDist+=hav(p[0],p[1],lat,lng);}
@@ -1751,20 +1757,20 @@ async function deleteWeight(id){
 }
 function pauseRun(){
   const btn=document.getElementById('bpause');
-  const icon=document.getElementById('pause-icon');
   const txt=document.getElementById('pause-txt');
   if(!btn) return;
   if(window._paused){
+    // Resume
+    window._pausedMs+=(Date.now()-window._pauseStart);
     window._paused=false;
     btn.style.background='#e84c4c';
-    if(icon) icon.innerHTML='<line x1="8" y1="5" x2="8" y2="19"/><line x1="16" y1="5" x2="16" y2="19"/>';
-    if(icon){ icon.setAttribute('fill','none'); icon.setAttribute('stroke','#fff'); }
-    if(txt) txt.textContent='PAUZA';
+    btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="8" y1="5" x2="8" y2="19"/><line x1="16" y1="5" x2="16" y2="19"/></svg><span style="font-size:13px;font-weight:800;color:#fff;font-family:Syne,sans-serif;margin-left:8px">PAUZA</span>';
   } else {
+    // Pause
+    window._pauseStart=Date.now();
     window._paused=true;
     btn.style.background='#2D8A4E';
-    if(icon){ icon.setAttribute('fill','#fff'); icon.setAttribute('stroke','none'); icon.innerHTML='<polygon points="5,3 19,12 5,21"/>'; }
-    if(txt) txt.textContent='POKRAČOVAŤ';
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><polygon points="5,3 19,12 5,21"/></svg><span style="font-size:13px;font-weight:800;color:#fff;font-family:Syne,sans-serif;margin-left:8px">POKRAČOVAŤ</span>';
   }
 }
 
