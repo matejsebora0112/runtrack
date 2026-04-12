@@ -404,95 +404,86 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
         <!-- MAP -->
     <div id="p-map" class="page" style="padding:0!important">
 
-      <!-- SCREEN 1: výber aktivity (pred štartom) -->
-      <div id="map-select" style="display:flex;flex-direction:column;height:100vh;max-height:100vh">
-        <!-- Header -->
-        <div style="background:#111;padding:10px 16px 9px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
-          <button onclick="go('add')" style="background:none;border:none;font-size:13px;color:rgba(255,255,255,.45);cursor:pointer;font-family:'DM Sans',sans-serif">✕ Späť</button>
+      <!-- SCREEN 1: výber aktivity -->
+      <div id="map-select" style="display:flex;flex-direction:column">
+        <div style="background:#111;padding:10px 16px 9px;display:flex;justify-content:space-between;align-items:center">
+          <button onclick="go('add')" style="background:none;border:none;font-size:13px;color:rgba(255,255,255,.45);cursor:pointer;font-family:'DM Sans',sans-serif;padding:0">✕ Späť</button>
           <span style="font-size:13px;font-weight:800;color:#F5C842;font-family:'Syne',sans-serif">Nová aktivita</span>
-          <button onclick="go('add')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,.3);cursor:pointer;font-family:'DM Sans',sans-serif">ručne</button>
+          <button onclick="go('add')" style="background:none;border:none;font-size:11px;color:rgba(255,255,255,.3);cursor:pointer;font-family:'DM Sans',sans-serif;padding:0">ručne</button>
         </div>
-        <!-- Mapa -->
-        <div id="map" style="flex:1;min-height:200px;position:relative"></div>
-        <!-- GPS badge -->
+        <div id="map" style="height:280px;width:100%;position:relative"></div>
         <div id="weather-badge" style="display:none;position:absolute;top:60px;right:12px;z-index:500;align-items:center;gap:6px;background:#111;border-radius:20px;padding:5px 12px">
           <span id="w-icon" style="font-size:14px"></span>
           <span id="w-temp" style="font-size:12px;color:#F5C842;font-family:'DM Mono',monospace;font-weight:500"></span>
           <span id="w-desc" style="font-size:11px;color:rgba(255,255,255,.6)"></span>
           <span id="w-wind" style="font-size:11px;color:rgba(255,255,255,.4)"></span>
         </div>
-        <!-- Bottom panel -->
-        <div style="background:#F7F3E8;padding:14px 16px 24px;flex-shrink:0">
+        <div style="background:#F7F3E8;padding:16px 16px 32px">
           <div style="font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;font-family:'DM Mono',monospace">Typ aktivity</div>
           <div id="activity-btns" style="display:flex;gap:8px;margin-bottom:14px">
             <button id="act-run" onclick="setActivity('run')" style="flex:1;background:#111;border:none;border-radius:10px;padding:12px 4px;cursor:pointer;text-align:center">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C842" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 5px"><circle cx="13.5" cy="4" r="1.8"/><path d="M7 22l4.5-8 2.5 3.5"/><path d="M14.5 17.5l2-5.5 2.5 1.5"/><path d="M7 22l2-4"/><path d="M10 10l3-3.5 3 2.5"/></svg>
-              <div style="font-size:9px;color:#F5C842;font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-family:'DM Sans',sans-serif">Beh</div>
+              <div style="font-size:9px;color:#F5C842;font-weight:700;text-transform:uppercase;font-family:'DM Sans',sans-serif">Beh</div>
             </button>
             <button id="act-bike" onclick="setActivity('bike')" style="flex:1;background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:12px 4px;cursor:pointer;text-align:center">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 5px"><circle cx="6" cy="17.5" r="2.5"/><circle cx="18" cy="17.5" r="2.5"/><polyline points="6,15 10,7 14,12.5 16.5,8 18,9"/><circle cx="14" cy="5.5" r="1.5"/><line x1="14" y1="7" x2="15.5" y2="9.5"/></svg>
-              <div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-family:'DM Sans',sans-serif">Bike</div>
+              <div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;font-family:'DM Sans',sans-serif">Bike</div>
             </button>
             <button id="act-gym-btn" onclick="setActivity('gym')" style="flex:1;background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:12px 4px;cursor:pointer;text-align:center">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 5px"><circle cx="12" cy="4" r="1.5"/><path d="M8 9h8"/><path d="M6 7v2M18 7v2"/><path d="M10 9v3l-2 5M14 9v3l2 5"/><path d="M10 12h4"/></svg>
-              <div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-family:'DM Sans',sans-serif">Gym</div>
+              <div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;font-family:'DM Sans',sans-serif">Gym</div>
             </button>
           </div>
           <button id="bstart" onclick="startRun()" style="width:100%;height:48px;background:#1a1a1a;border:none;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="#F5C842"><polygon points="5,3 19,12 5,21"/></svg>
-            <span style="font-size:13px;font-weight:800;color:#F5C842;letter-spacing:.3px;font-family:'Syne',sans-serif">Štart</span>
+            <span style="font-size:13px;font-weight:800;color:#F5C842;font-family:'Syne',sans-serif">Štart</span>
           </button>
-          <p style="font-size:10px;color:#bbb;text-align:center;margin-top:8px;font-family:'DM Mono',monospace">GPS vyžaduje povolenie · OpenStreetMap</p>
+          <p style="font-size:10px;color:#bbb;text-align:center;margin-top:10px;font-family:'DM Mono',monospace">GPS vyžaduje povolenie · OpenStreetMap</p>
         </div>
       </div>
 
       <!-- SCREEN 2: aktívne nahrávanie -->
-      <div id="map-active" style="display:none;flex-direction:column;height:100vh;max-height:100vh">
-        <!-- Yellow header -->
-        <div id="map-active-header" style="background:#F5C842;padding:10px 16px 9px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div id="map-active" style="display:none;flex-direction:column">
+        <div id="map-active-header" style="background:#F5C842;padding:10px 16px 9px;display:flex;align-items:center;justify-content:space-between">
           <div style="display:flex;align-items:center;gap:6px">
-            <span class="pdot" id="mdot" style="background:#111"></span>
+            <span class="pdot" id="mdot"></span>
             <span id="mst" style="font-size:10px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace">Pripravený</span>
           </div>
           <button onclick="toggleMapView()" style="background:none;border:none;font-size:10px;color:rgba(0,0,0,.5);cursor:pointer;font-family:'DM Sans',sans-serif">mapa ↙</button>
         </div>
-        <!-- Čas -->
-        <div style="background:#111;padding:18px 16px 14px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,.07);flex-shrink:0">
-          <div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;font-family:'DM Mono',monospace">čas aktivity</div>
-          <div id="lvt" style="font-size:38px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;letter-spacing:2px">0:00</div>
+        <div style="background:#111;padding:16px;text-align:center;border-bottom:0.5px solid rgba(255,255,255,.07)">
+          <div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;font-family:'DM Mono',monospace">čas aktivity</div>
+          <div id="lvt" style="font-size:36px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;letter-spacing:2px">0:00</div>
         </div>
-        <!-- Grid 2x2 štatistiky -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:16px;background:#111;flex:1">
-          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:20px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
-            <div id="lvkm" style="font-size:28px;font-weight:900;color:#F5C842;font-family:'DM Mono',monospace;line-height:1">0.00</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-family:'DM Mono',monospace">km</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;background:#111">
+          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:16px 8px;text-align:center">
+            <div id="lvkm" style="font-size:24px;font-weight:900;color:#F5C842;font-family:'DM Mono',monospace">0.00</div>
+            <div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:5px;font-family:'DM Mono',monospace">km</div>
           </div>
-          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:20px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
-            <div id="lvp" style="font-size:28px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1">--:--</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-family:'DM Mono',monospace">pace /km</div>
+          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:16px 8px;text-align:center">
+            <div id="lvp" style="font-size:24px;font-weight:900;color:#fff;font-family:'DM Mono',monospace">--:--</div>
+            <div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:5px;font-family:'DM Mono',monospace">pace /km</div>
           </div>
-          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:20px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
-            <div id="lv-hr" style="font-size:28px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1">—</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-family:'DM Mono',monospace">bpm</div>
+          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:16px 8px;text-align:center">
+            <div id="lv-hr" style="font-size:24px;font-weight:900;color:#fff;font-family:'DM Mono',monospace">—</div>
+            <div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:5px;font-family:'DM Mono',monospace">bpm</div>
           </div>
-          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:20px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
-            <div id="lv-kcal" style="font-size:28px;font-weight:900;color:#fff;font-family:'DM Mono',monospace;line-height:1">0</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-family:'DM Mono',monospace">kcal</div>
+          <div style="background:rgba(255,255,255,.07);border-radius:12px;padding:16px 8px;text-align:center">
+            <div id="lv-kcal" style="font-size:24px;font-weight:900;color:#fff;font-family:'DM Mono',monospace">0</div>
+            <div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:5px;font-family:'DM Mono',monospace">kcal</div>
           </div>
         </div>
-        <!-- Tlačidlá -->
-        <div style="display:flex;gap:10px;padding:12px 16px 24px;background:#111;flex-shrink:0">
+        <div style="display:flex;gap:10px;padding:12px 16px 32px;background:#111">
           <button id="bstop" onclick="stopRun()" style="width:48px;height:48px;background:rgba(255,255,255,.1);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="rgba(255,255,255,.6)"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
           </button>
           <button id="bpause" onclick="pauseRun()" style="flex:1;height:48px;background:#e84c4c;border:none;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="8" y1="5" x2="8" y2="19"/><line x1="16" y1="5" x2="16" y2="19"/></svg>
-            <span style="font-size:12px;font-weight:800;color:#fff;font-family:'Syne',sans-serif;letter-spacing:.3px">PAUZA</span>
+            <span style="font-size:12px;font-weight:800;color:#fff;font-family:'Syne',sans-serif">PAUZA</span>
           </button>
         </div>
       </div>
     </div>
-
     <!-- HISTORY -->
     <div id="p-history" class="page">
       <div class="ph"><h1 class="pt">História behov</h1><p class="ps">Tvoje tréningy — nikto iný ich nevidí</p></div>
@@ -939,6 +930,8 @@ function go(p){
   if(p==='history')renderHistory();
   if(p==='charts')renderCharts();
   if(p==='map'){
+    // Reset to run by default
+    setTimeout(()=>setActivity('run'),100);
     initMap();
     // Show select screen, hide active screen
     const sel=document.getElementById('map-select');
