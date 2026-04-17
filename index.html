@@ -189,7 +189,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .h-btn{padding:10px 6px;border-radius:var(--rs);border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center}
 .h-btn:hover{border-color:#3a8cc4;color:#3a8cc4;background:#E0F0FA}
 #p-map{padding:0!important;margin:0!important}
-#p-map.active{position:fixed;top:0;left:0;right:0;bottom:0;z-index:50;overflow:hidden}
 .h-log-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
 .h-log-row:last-child{border-bottom:none}
 .loader{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.1);border-top-color:#B8860B;border-radius:50%;animation:spin .7s linear infinite}
@@ -443,7 +442,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       </div>
 
       <!-- SCREEN 2: aktívne nahrávanie - fixed full screen -->
-      <div id="map-active" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;flex-direction:column;background:#111;overflow:hidden">
+      <div id="map-active" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;flex-direction:column;background:#111;overflow:hidden;padding-bottom:env(safe-area-inset-bottom,0px)">
         <div id="map-active-header" style="background:#F5C842;padding:12px 16px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
           <div style="display:flex;align-items:center;gap:6px">
             <span class="pdot" id="mdot"></span>
@@ -473,7 +472,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
             <div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;margin-top:5px;font-family:'DM Mono',monospace">kcal</div>
           </div>
         </div>
-        <div style="display:flex;gap:10px;padding:12px 16px 40px;flex-shrink:0">
+        <div style="display:flex;gap:10px;padding:12px 16px 100px;flex-shrink:0">
           <button id="bstop" onclick="stopRun()" style="width:52px;height:52px;background:rgba(255,255,255,.1);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,.7)"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
           </button>
@@ -702,6 +701,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
         Jedlo
       </button>
       <button class="bni-fab" id="bn-add" onclick="go('map')">
+        <div class="fab-inner"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C842" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
         Aktivita
       </button>
       <button class="bni" id="bn-hydration" onclick="go('hydration')">
@@ -714,10 +714,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       </button>
     </div>
   </nav></div>
-
-<button class="fab-fixed" id="fab-main" onclick="go('map')">
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5C842" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-</button>
 
 <div class="toast" id="toast"></div>
 
