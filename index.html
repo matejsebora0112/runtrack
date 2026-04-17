@@ -20,8 +20,8 @@
 :root{--bg:#F7F3E8;--bg2:#fff;--bg3:#F2EDD8;--border:rgba(0,0,0,.07);--border2:rgba(0,0,0,.12);--text:#111111;--text2:#555;--text3:#999;--green:#111111;--gdim:#F5C842;--orange:#e8925a;--blue:#3a8cc4;--r:14px;--rs:10px;--yellow:#F5C842;--ydim:#FFF8DC}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
-.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
-.auth-box{width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:2.5rem 2rem}
+.auth-wrap{height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:hidden;box-sizing:border-box}
+.auth-box{max-height:calc(100vh - 2rem);overflow-y:auto;width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:2.5rem 2rem}
 .auth-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;color:#111;display:flex;align-items:center;gap:10px;margin-bottom:.5rem}
 .dot{width:9px;height:9px;background:currentColor;border-radius:50%;animation:breathe 2.5s ease-in-out infinite}
 @keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
@@ -1238,11 +1238,7 @@ function startRun(){
 
 async function stopRun(){
   navigator.geolocation.clearWatch(wid);clearInterval(tInt);
-  document.getElementById('bstart').style.display='inline-flex';document.getElementById('bstop').style.display='none';
-  document.getElementById('mdot').classList.remove('rec');
-  document.getElementById('mst').textContent=currentActivity==='run'?'Beh zastavený':'Jazda zastavená';
-  document.getElementById('activity-btns').style.opacity='1';
-  document.getElementById('activity-btns').style.pointerEvents='auto';
+  // clear watch and timer
   if(lDist<0.01){toast('Príliš krátka trasa.');return;}
   const el=Math.floor((Date.now()-sTime)/60000),kcal=Math.round(lDist*(currentActivity==='bike'?35:65));
   const p=el/lDist;const pm=Math.floor(p);const ps=Math.round((p-pm)*60);
@@ -1259,7 +1255,12 @@ async function stopRun(){
         elev:0,
         weather:weatherData?`${weatherData.icon} ${weatherData.temp}°C · ${weatherData.desc} · 💨${weatherData.wind}km/h`:null
       })});
-    runs.unshift(s[0]);toast('✓ '+(currentActivity==='bike'?'Jazda':'Beh')+' — '+lDist.toFixed(2)+' km · '+kcal+' kcal','green');
+    runs.unshift(s[0]);
+    document.getElementById('map-active').style.display='none';
+    window._paused=false;window._pausedMs=0;
+    document.getElementById('mdot').classList.remove('rec');
+    toast('✓ '+(currentActivity==='bike'?'Jazda':'Beh')+' — '+lDist.toFixed(2)+' km · '+kcal+' kcal','green');
+    go('history');
   }catch(e){toast('Chyba: '+e.message,'err');}
 }
 
