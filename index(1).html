@@ -670,30 +670,119 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
   });
 </script>
 
+<!-- DONE OVERLAY — animácia pri dokončení aktivity (Bod 5) -->
+<div id="doneOverlay" style="position:fixed;inset:0;z-index:20000;background:#111111;display:none;align-items:center;justify-content:center;flex-direction:column">
+  <div style="text-align:center">
+    <div id="doneCircle" style="width:84px;height:84px;border-radius:50%;background:#FAF7EC;display:flex;align-items:center;justify-content:center;margin:0 auto 18px">
+      <svg width="42" height="26" viewBox="0 0 100 60"><polyline points="0,45 25,45 40,10 55,55 70,25 85,25 100,15" fill="none" stroke="#111111" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div id="doneTitle" style="font-family:Georgia,serif;font-size:30px;color:#FAF7EC">Hotovo!</div>
+    <div id="doneSub" style="font-family:-apple-system,'SF Pro',sans-serif;font-size:12px;color:#b8aa8c;margin-top:8px">Skvelý výkon 💪</div>
+  </div>
+</div>
+<style>
+@keyframes doneCirclePop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes doneFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+#doneOverlay.show #doneCircle{animation:doneCirclePop 0.6s cubic-bezier(.34,1.56,.64,1)}
+#doneOverlay.show #doneTitle{animation:doneFadeUp 0.5s ease 0.3s both}
+#doneOverlay.show #doneSub{animation:doneFadeUp 0.5s ease 0.45s both}
+</style>
+<script>
+const DONE_VARIANTS=[
+  {title:'Hotovo!',sub:'Skvelý výkon 💪'},
+  {title:'Super!',sub:'Nová osobná séria? 🔥'},
+  {title:'DONE',sub:'Držíš to! Ešte jeden krok bližšie k cieľu'}
+];
+function showDoneAnimation(callback){
+  const overlay=document.getElementById('doneOverlay');
+  if(!overlay){if(callback)callback();return;}
+  const v=DONE_VARIANTS[Math.floor(Math.random()*DONE_VARIANTS.length)];
+  document.getElementById('doneTitle').textContent=v.title;
+  document.getElementById('doneSub').textContent=v.sub;
+  overlay.style.display='flex';
+  // force reflow, aby sa animácia spustila znova pri opakovanom volaní
+  void overlay.offsetWidth;
+  overlay.classList.add('show');
+  setTimeout(()=>{
+    overlay.classList.remove('show');
+    overlay.style.display='none';
+    if(callback)callback();
+  },1300);
+}
+</script>
+
+<!-- NUTRITION SUGGESTION OVERLAY — Bod 4 -->
+<div id="nutriOverlay" style="position:fixed;inset:0;z-index:19000;background:rgba(17,17,17,0.55);display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#111111;border-radius:24px;padding:22px;max-width:360px;width:100%;color:#FAF7EC">
+    <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(245,200,66,0.9);color:#3a2e00;font-size:10px;font-weight:700;padding:5px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:0.5px" id="nutri-goal-pill">Tvoj cieľ: udržiavať</div>
+    <div style="font-size:14px;font-weight:700;margin-top:12px;line-height:1.4" id="nutri-headline">Spálil si 0 kcal 🔥</div>
+    <div style="font-size:12px;color:#c9bfa8;margin-top:6px;line-height:1.5" id="nutri-msg"></div>
+    <div onclick="acceptNutritionSuggestion()" style="display:flex;align-items:center;justify-content:center;gap:6px;background:#F5C842;color:#111;border-radius:16px;padding:12px;font-weight:700;font-size:12px;margin-top:14px;cursor:pointer">
+      <i class="ti ti-apple"></i> Pozrieť návrhy jedla
+    </div>
+    <div onclick="skipNutritionSuggestion()" style="text-align:center;font-size:11px;color:#a39c87;margin-top:14px;cursor:pointer">Preskočiť</div>
+  </div>
+</div>
+<script>
+const NUTRI_MSG={
+  lose:'Pri cieli "chudnúť" odporúčame doplniť len časť z toho — pozri si ľahšie možnosti v Jedle.',
+  gain:'Pri cieli "naberať" doplň celý výdaj a zameraj sa na bielkoviny.',
+  maintain:'Doplň zhruba toľko, koľko si spálil, nech si udržíš rovnováhu.'
+};
+let _nutriPending=null;
+function showNutritionSuggestion(kcal, label){
+  const overlay=document.getElementById('nutriOverlay');
+  if(!overlay||!kcal||kcal<=0){ go('history'); return; }
+  const goal=getUserGoal();
+  document.getElementById('nutri-goal-pill').textContent='Tvoj cieľ: '+goalLabel(goal);
+  document.getElementById('nutri-headline').textContent='Spálil si '+kcal+' kcal navyše 🔥';
+  document.getElementById('nutri-msg').textContent=NUTRI_MSG[goal]||NUTRI_MSG.maintain;
+  _nutriPending={kcal};
+  overlay.style.display='flex';
+}
+function acceptNutritionSuggestion(){
+  const overlay=document.getElementById('nutriOverlay');
+  const kcal=_nutriPending?.kcal||0;
+  overlay.style.display='none';
+  const fkcalEl=document.getElementById('fkcal');
+  if(fkcalEl) fkcalEl.value=kcal;
+  go('food');
+  doFood();
+  _nutriPending=null;
+}
+function skipNutritionSuggestion(){
+  document.getElementById('nutriOverlay').style.display='none';
+  go('history');
+  _nutriPending=null;
+}
+</script>
+
 <!-- AUTH -->
-<div id="auth" class="auth-wrap">
-  <div class="auth-box">
-    <div class="auth-logo" style="gap:12px"><svg width="36" height="36" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-  <rect width="80" height="80" rx="18" fill="#F5C842"/>
-  <text x="40" y="34" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="15" fill="#111" letter-spacing="-0.5">TRACK</text>
-  <text x="40" y="52" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="15" fill="#111" letter-spacing="-0.5">FIT</text>
-  <polyline points="16,62 22,62 26,52 32,70 36,56 42,62 64,62" fill="none" stroke="#111" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-</svg><span>TrackFit</span></div>
-    <p class="auth-sub">Tvoj osobný fit denník</p>
+<div id="auth" class="auth-wrap" style="background:#FAF7EC">
+  <div class="auth-box" style="background:#fff;border-color:#ede7d4;box-shadow:0 8px 30px rgba(0,0,0,0.05);text-align:center">
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px">
+      <svg width="30" height="30" viewBox="0 0 100 60"><polyline points="0,45 25,45 40,10 55,55 70,25 85,25 100,15" fill="none" stroke="#111111" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font-family:Georgia,serif;font-size:28px;letter-spacing:-1px;color:#111">TrackFit</span>
+    </div>
+    <p class="auth-sub" style="text-align:center;margin-bottom:1.75rem">Tvoj tréning. Tvoje tempo.</p>
     <button class="btn-google" onclick="loginGoogle()">
       <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      Prihlásiť sa cez Google
+      <span data-i18n="auth_google">Pokračovať cez Google</span>
     </button>
-    <div class="div-row"><div class="div-line"></div><span class="div-txt">alebo emailom</span><div class="div-line"></div></div>
+    <button onclick="loginApple()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:13px;background:#000;color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;margin-bottom:.75rem;font-family:inherit">
+      <svg width="16" height="16" viewBox="0 0 384 512" fill="#fff"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+      <span data-i18n="auth_apple">Pokračovať cez Apple</span>
+    </button>
+    <div class="div-row"><div class="div-line"></div><span class="div-txt" data-i18n="auth_or_email">alebo emailom</span><div class="div-line"></div></div>
     <div class="auth-tabs">
-      <button class="auth-tab active" onclick="setAM('login')">Prihlásiť sa</button>
-      <button class="auth-tab" onclick="setAM('register')">Registrovať</button>
+      <button class="auth-tab active" onclick="setAM('login')" data-i18n="auth_tab_login">Prihlásiť sa</button>
+      <button class="auth-tab" onclick="setAM('register')" data-i18n="auth_tab_register">Registrovať</button>
     </div>
-    <label class="fl">Email</label>
+    <label class="fl" data-i18n="fl_email">Email</label>
     <input class="fi" type="email" id="ae" placeholder="tvoj@email.com" onkeydown="if(event.key==='Enter')doAuth()">
-    <label class="fl">Heslo</label>
+    <label class="fl" data-i18n="fl_password">Heslo</label>
     <input class="fi" type="password" id="ap" placeholder="minimálne 8 znakov" onkeydown="if(event.key==='Enter')doAuth()">
-    <button class="btn-email" id="abtn" onclick="doAuth()">Prihlásiť sa</button>
+    <button class="btn-email" id="abtn" onclick="doAuth()" style="background:#F5C842;color:#111">Prihlásiť sa</button>
     <div class="aerr" id="aerr"></div>
   </div>
 </div>
@@ -742,7 +831,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <!-- Header with back arrow -->
       <div class="b-hdr">
         <button class="b-hdr-back" onclick="go('history')"><i class="ti ti-arrow-left"></i></button>
-        <div class="b-hdr-title">Pridať aktivitu</div>
+        <div class="b-hdr-title" data-i18n="hdr_add_activity">Pridať aktivitu</div>
         <div class="b-hdr-spacer"></div>
       </div>
 
@@ -771,13 +860,13 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 
       <!-- Date -->
       <div class="b-field">
-        <label class="b-field-l">Dátum</label>
+        <label class="b-field-l" data-i18n="fl_date">Dátum</label>
         <input class="b-field-i" type="date" id="id">
       </div>
 
       <!-- Time -->
       <div class="b-field">
-        <label class="b-field-l">Čas aktivity</label>
+        <label class="b-field-l" data-i18n="fl_act_time">Čas aktivity</label>
         <div style="display:flex;align-items:center;gap:6px">
           <input class="b-field-i" type="number" id="ih" placeholder="0" min="0" max="23" style="text-align:center;width:60px">
           <span style="font-size:9px;color:#999;font-weight:700;letter-spacing:0.8px;text-transform:uppercase">hod</span>
@@ -790,21 +879,21 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <div id="f-run">
         <div class="b-field-row2">
           <div class="b-field">
-            <label class="b-field-l">Vzdialenosť · km</label>
+            <label class="b-field-l" data-i18n="fl_distance">Vzdialenosť · km</label>
             <input class="b-field-i" type="number" id="ikm" placeholder="5.0" step="0.1" min="0">
           </div>
           <div class="b-field">
-            <label class="b-field-l">Tempo · /km</label>
+            <label class="b-field-l" data-i18n="fl_pace">Tempo · /km</label>
             <input class="b-field-i" type="text" id="ipace" placeholder="auto" readonly>
           </div>
         </div>
         <div class="b-field-row2">
           <div class="b-field">
-            <label class="b-field-l">Priem. tep · BPM</label>
+            <label class="b-field-l" data-i18n="fl_hr_avg">Priem. tep · BPM</label>
             <input class="b-field-i" type="number" id="ihr-avg-run" placeholder="145" min="0" max="230">
           </div>
           <div class="b-field">
-            <label class="b-field-l">Max. tep · BPM</label>
+            <label class="b-field-l" data-i18n="fl_hr_max">Max. tep · BPM</label>
             <input class="b-field-i" type="number" id="ihr-max-run" placeholder="175" min="0" max="230">
           </div>
         </div>
@@ -814,21 +903,21 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <div id="f-bike" style="display:none">
         <div class="b-field-row2">
           <div class="b-field">
-            <label class="b-field-l">Vzdialenosť · km</label>
+            <label class="b-field-l" data-i18n="fl_distance">Vzdialenosť · km</label>
             <input class="b-field-i" type="number" id="ikm-bike" placeholder="20.0" step="0.1" min="0">
           </div>
           <div class="b-field">
-            <label class="b-field-l">Prevýšenie · m</label>
+            <label class="b-field-l" data-i18n="fl_elev">Prevýšenie · m</label>
             <input class="b-field-i" type="number" id="ielev" placeholder="150" min="0">
           </div>
         </div>
         <div class="b-field-row2">
           <div class="b-field">
-            <label class="b-field-l">Priem. tep · BPM</label>
+            <label class="b-field-l" data-i18n="fl_hr_avg">Priem. tep · BPM</label>
             <input class="b-field-i" type="number" id="ihr-avg-bike" placeholder="130" min="0" max="230">
           </div>
           <div class="b-field">
-            <label class="b-field-l">Max. tep · BPM</label>
+            <label class="b-field-l" data-i18n="fl_hr_max">Max. tep · BPM</label>
             <input class="b-field-i" type="number" id="ihr-max-bike" placeholder="165" min="0" max="230">
           </div>
         </div>
@@ -837,25 +926,25 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <!-- GYM fields -->
       <div id="f-gym" style="display:none">
         <div class="b-field">
-          <label class="b-field-l">Priem. tep · BPM</label>
+          <label class="b-field-l" data-i18n="fl_hr_avg">Priem. tep · BPM</label>
           <input class="b-field-i" type="number" id="ihr-avg-gym" placeholder="120" min="0" max="230">
         </div>
       </div>
 
       <!-- Kcal -->
       <div class="b-field">
-        <label class="b-field-l">Spálené kalórie · kcal</label>
+        <label class="b-field-l" data-i18n="fl_kcal_burned">Spálené kalórie · kcal</label>
         <input class="b-field-i" type="number" id="ikcal" placeholder="300" min="0">
       </div>
 
       <!-- Note -->
       <div class="b-field">
-        <label class="b-field-l">Poznámka</label>
+        <label class="b-field-l" data-i18n="fl_note">Poznámka</label>
         <input class="b-field-i" type="text" id="inote" placeholder="Ranný beh, park...">
       </div>
 
       <!-- Feeling -->
-      <div class="b-sec">Pocit po tréningu</div>
+      <div class="b-sec" data-i18n="sec_feeling">Pocit po tréningu</div>
       <div class="b-feel-row">
         <button class="b-feel on" id="feel-1" onclick="setFeeling(1)">
           <i class="ti ti-mood-sad"></i>
@@ -873,7 +962,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 
       <!-- Save -->
       <button class="b-btn" id="sbtn" onclick="addRun()">
-        <i class="ti ti-check"></i> Uložiť aktivitu
+        <i class="ti ti-check"></i> <span data-i18n="btn_save_activity">Uložiť aktivitu</span>
       </button>
 
       <div id="shint" style="display:none;background:#E1F5EE;color:#0F6E56;border-radius:12px;padding:12px;margin-top:10px;font-size:12px;line-height:1.5;font-weight:500">
@@ -986,25 +1075,30 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <div class="b-greet">
         <div>
           <div class="b-greet-day" id="ov-day">PIATOK · 27. JÚNA</div>
-          <div class="b-greet-name">Ahoj<span id="ov-name"></span></div>
+          <div class="b-greet-name"><span data-i18n="greeting_hi">Ahoj</span><span id="ov-name"></span></div>
         </div>
-        <div class="b-greet-av" onclick="logout()" title="Odhlásiť">
-          <i class="ti ti-user"></i>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="go('settings')" title="Nastavenia" style="width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid #ede7d4;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#111">
+            <i class="ti ti-settings" style="font-size:18px"></i>
+          </button>
+          <div class="b-greet-av" onclick="logout()" title="Odhlásiť">
+            <i class="ti ti-user"></i>
+          </div>
         </div>
       </div>
 
       <!-- Bento: weekly goal + voda -->
       <div class="bento bento-2">
         <div class="bcard b-amber" id="ov-goal-wrap" onclick="setOverviewActivity('run')">
-          <div class="bcard-lbl">Tento týždeň</div>
+          <div class="bcard-lbl" data-i18n="ov_week">Tento týždeň</div>
           <div class="bcard-num-lg" id="ov-goal-progress">0.0<small>/0</small></div>
           <div class="bcard-sub" id="ov-goal-lbl">Cieľ · BEH</div>
         </div>
         <div class="bcard b-teal" onclick="go('hydration')">
           <i class="ti ti-chevron-right bcard-go"></i>
-          <div class="bcard-lbl">Voda</div>
+          <div class="bcard-lbl" data-i18n="ov_water">Voda</div>
           <div class="bcard-num" id="ov-water">0.0<small>/2.0L</small></div>
-          <div class="bcard-sub" id="ov-water-sub">Klikni pre detail</div>
+          <div class="bcard-sub" id="ov-water-sub" data-i18n="ov_water_sub">Klikni pre detail</div>
         </div>
       </div>
 
@@ -1012,15 +1106,15 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <div class="bento bento-2b">
         <div class="bcard b-purple" onclick="go('weight')">
           <i class="ti ti-chevron-right bcard-go"></i>
-          <div class="bcard-lbl">Váha</div>
+          <div class="bcard-lbl" data-i18n="ov_weight">Váha</div>
           <div class="bcard-num" id="ov-weight">—</div>
-          <div class="bcard-sub" id="ov-weight-sub">Pridať</div>
+          <div class="bcard-sub" id="ov-weight-sub" data-i18n="ov_add">Pridať</div>
         </div>
         <div class="bcard b-coral" onclick="go('food')">
           <i class="ti ti-chevron-right bcard-go"></i>
-          <div class="bcard-lbl">Kcal dnes</div>
+          <div class="bcard-lbl" data-i18n="ov_kcal">Kcal dnes</div>
           <div class="bcard-num-lg" id="ov-kcal">0</div>
-          <div class="bcard-sub" id="ov-kcal-sub">Pridať jedlo</div>
+          <div class="bcard-sub" id="ov-kcal-sub" data-i18n="ov_add_food">Pridať jedlo</div>
         </div>
       </div>
 
@@ -1028,11 +1122,11 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <div class="b-split">
         <div class="b-split-s">
           <div class="b-split-n" style="color:#854F0B"><span id="ov-streak">0</span><small> dní</small></div>
-          <div class="b-split-l">Séria</div>
+          <div class="b-split-l" data-i18n="ov_streak">Séria</div>
         </div>
         <div class="b-split-s">
           <div class="b-split-n" id="ov-pace">—</div>
-          <div class="b-split-l">Tempo /km</div>
+          <div class="b-split-l" data-i18n="ov_pace">Tempo /km</div>
         </div>
         <div class="b-split-s">
           <div class="b-split-n" id="ov-bmi">—</div>
@@ -1050,7 +1144,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       </div>
 
       <!-- Section: Posledné aktivity -->
-      <div class="b-sec">Posledné aktivity</div>
+      <div class="b-sec" data-i18n="ov_recent">Posledné aktivity</div>
       <div id="hlist"><div class="b-empty"><div class="b-empty-ico"><i class="ti ti-run"></i></div><p>Zatiaľ žiadne aktivity</p></div></div>
 
     </div>
@@ -1059,12 +1153,12 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <div id="p-charts" class="page b-page">
       <div class="b-hdr">
         <button class="b-hdr-back" onclick="go('history')"><i class="ti ti-arrow-left"></i></button>
-        <div class="b-hdr-title">Grafy výkonu</div>
+        <div class="b-hdr-title" data-i18n="charts_title">Grafy výkonu</div>
         <div class="b-hdr-spacer"></div>
       </div>
 
       <!-- Activity filter -->
-      <div class="b-sec">Aktivita</div>
+      <div class="b-sec" data-i18n="sec_activity">Aktivita</div>
       <div class="nv-actdd" id="nv-actdd-chart" style="margin-bottom:10px">
         <div class="nv-actdd-sel closed" id="chart-actdd-sel" onclick="toggleActDropdown('chart')">
           <span class="nv-actdd-sel-lbl" id="chart-actdd-sel-lbl"><i class="ti ti-run"></i> Beh</span>
@@ -1074,7 +1168,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       </div>
 
       <!-- Period filter -->
-      <div class="b-sec">Obdobie</div>
+      <div class="b-sec" data-i18n="sec_period">Obdobie</div>
       <div class="b-filter" id="chart-period-btns">
         <button class="b-filter-pill on" onclick="setPeriod(7,this)" style="border:none;cursor:pointer;font-family:inherit">7 DNÍ</button>
         <button class="b-filter-pill" onclick="setPeriod(30,this)" style="border:none;cursor:pointer;font-family:inherit">30 DNÍ</button>
@@ -1113,11 +1207,65 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <div class="bcard b-white" id="chart-card4" style="padding:10px;margin-bottom:8px"><div style="height:180px"><canvas id="chr"></canvas></div></div>
     </div>
 
+    <!-- SETTINGS -->
+    <div id="p-settings" class="page b-page">
+      <div class="b-hdr">
+        <button class="b-hdr-back" onclick="go('history')"><i class="ti ti-arrow-left"></i></button>
+        <div class="b-hdr-title" data-i18n="settings_title">Nastavenia</div>
+        <div class="b-hdr-spacer"></div>
+      </div>
+
+      <!-- Profil -->
+      <div class="bcard b-white" style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+        <div style="width:44px;height:44px;border-radius:50%;background:#111;color:#F5C842;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0" id="settings-av-init">M</div>
+        <div style="min-width:0">
+          <div style="font-weight:700;font-size:13px" id="settings-email">—</div>
+          <div style="font-size:11px;color:#a39c87" data-i18n="settings_account">TrackFit účet</div>
+        </div>
+      </div>
+
+      <!-- Ciele a strava -->
+      <div class="b-sec" data-i18n="settings_goals_sec">Ciele a strava</div>
+      <div class="bcard b-white" style="padding:0;margin-bottom:18px;overflow:hidden">
+        <div class="nv-actdd" id="nv-actdd-goal" style="margin:0">
+          <div class="nv-actdd-sel closed" id="goal-actdd-sel" onclick="toggleGoalDropdown()" style="border:none;border-radius:0">
+            <span class="nv-actdd-sel-lbl"><i class="ti ti-target"></i> <span data-i18n="settings_goal">Cieľ</span></span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#a39c87"><span id="goal-actdd-sel-lbl">Udržiavať</span><i class="ti ti-chevron-down nv-actdd-chev"></i></span>
+          </div>
+          <div class="nv-actdd-list closed" id="goal-actdd-list"></div>
+        </div>
+      </div>
+
+      <!-- Appka -->
+      <div class="b-sec" data-i18n="settings_app_sec">Appka</div>
+      <div class="bcard b-white" style="padding:0;margin-bottom:18px;overflow:hidden">
+        <div class="nv-actdd" id="nv-actdd-lang" style="margin:0">
+          <div class="nv-actdd-sel closed" id="lang-actdd-sel" onclick="toggleLangDropdown()" style="border:none;border-radius:0;border-bottom:1px solid #ede7d4">
+            <span class="nv-actdd-sel-lbl"><i class="ti ti-language"></i> <span data-i18n="settings_lang">Jazyk</span></span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:#a39c87"><span id="lang-actdd-sel-lbl">🇸🇰 Slovenčina</span><i class="ti ti-chevron-down nv-actdd-chev"></i></span>
+          </div>
+          <div class="nv-actdd-list closed" id="lang-actdd-list"></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px">
+          <span style="display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600"><i class="ti ti-bell"></i> <span data-i18n="settings_notif">Notifikácie</span></span>
+          <span style="font-size:11px;color:#a39c87" data-i18n="settings_soon">Čoskoro</span>
+        </div>
+      </div>
+
+      <!-- Účet -->
+      <div class="b-sec" data-i18n="settings_account_sec">Účet</div>
+      <div class="bcard b-white" style="padding:0;overflow:hidden">
+        <button onclick="logout()" style="width:100%;display:flex;align-items:center;gap:10px;padding:13px 14px;font-size:12px;font-weight:700;color:#c0392b;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left">
+          <i class="ti ti-logout"></i> <span data-i18n="settings_logout">Odhlásiť sa</span>
+        </button>
+      </div>
+    </div>
+
     <!-- FOOD -->
     <div id="p-food" class="page b-page">
       <div class="b-hdr">
         <button class="b-hdr-back" onclick="go('history')"><i class="ti ti-arrow-left"></i></button>
-        <div class="b-hdr-title">Doplnenie kalórií</div>
+        <div class="b-hdr-title" data-i18n="food_title">Doplnenie kalórií</div>
         <div class="b-hdr-action" style="visibility:hidden"></div>
       </div>
 
@@ -1127,7 +1275,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
         <div class="bcard-sub">Po behu chceš dopĺňať podľa toho, koľko si spálil</div>
       </div>
 
-      <div class="b-sec">Diéta</div>
+      <div class="b-sec" data-i18n="sec_diet">Diéta</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="dbtns">
         <button class="b-filter-pill on" id="d-all" onclick="toggleDiet('all')" style="flex:0 0 auto;padding:8px 14px;background:#0a0a0a;color:#F5C842;border:none;cursor:pointer;font-family:inherit">Všetky</button>
         <button class="b-filter-pill" id="d-vg" onclick="toggleDiet('vegetarian')" style="flex:0 0 auto;padding:8px 14px;background:#fff;color:#999;border:none;cursor:pointer;font-family:inherit">Vegetarián</button>
@@ -1137,14 +1285,14 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
         <button class="b-filter-pill" id="d-pr" onclick="toggleDiet('protein')" style="flex:0 0 auto;padding:8px 14px;background:#fff;color:#999;border:none;cursor:pointer;font-family:inherit">Proteín</button>
       </div>
 
-      <div class="b-sec">Alergény — vylúčiť</div>
+      <div class="b-sec" data-i18n="sec_allergens">Alergény — vylúčiť</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px" id="abtns">
         <button class="b-filter-pill" id="a-soja" onclick="toggleAllergen('soja')" style="flex:0 0 auto;padding:8px 14px;background:#fff;color:#999;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><i class="ti ti-plus" id="a-soja-ico" style="font-size:14px"></i> Sója</button>
         <button class="b-filter-pill" id="a-orechy" onclick="toggleAllergen('orechy')" style="flex:0 0 auto;padding:8px 14px;background:#fff;color:#999;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px"><i class="ti ti-plus" id="a-orechy-ico" style="font-size:14px"></i> Orechy</button>
       </div>
       <div id="allergen-hint" style="font-size:10px;color:#b8aa8c;margin-bottom:10px;padding-left:2px;font-weight:600;display:none"></div>
 
-      <div class="b-sec">Odporúčané jedlo</div>
+      <div class="b-sec" data-i18n="sec_food_rec">Odporúčané jedlo</div>
       <div id="fout"></div>
 
       <div style="display:flex;align-items:flex-start;gap:6px;margin-top:14px;padding:0 4px">
@@ -1157,7 +1305,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <div id="p-weight" class="page b-page">
       <div class="b-hdr">
         <button class="b-hdr-back" onclick="go('history')"><i class="ti ti-arrow-left"></i></button>
-        <div class="b-hdr-title">Váha</div>
+        <div class="b-hdr-title" data-i18n="hdr_weight">Váha</div>
         <div class="b-hdr-spacer"></div>
       </div>
 
@@ -1190,7 +1338,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 
       <!-- Výška pre BMI -->
       <div class="b-field">
-        <label class="b-field-l">Výška · pre BMI</label>
+        <label class="b-field-l" data-i18n="fl_height">Výška · pre BMI</label>
         <div style="display:flex;align-items:center;gap:6px">
           <input type="number" id="w-height" placeholder="175" min="100" max="250" step="1" style="flex:1;background:transparent;border:none;font-size:14px;font-weight:600;color:#0a0a0a;font-family:inherit;outline:none;padding:0;font-feature-settings:'tnum'" onchange="saveHeight()">
           <span style="font-size:11px;color:#999;font-weight:600">cm</span>
@@ -1219,17 +1367,17 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       </div>
 
       <!-- Add new weight -->
-      <div class="b-sec">Zaznamenať váhu</div>
+      <div class="b-sec" data-i18n="sec_log_weight">Zaznamenať váhu</div>
       <div class="b-field">
-        <label class="b-field-l">Dátum</label>
+        <label class="b-field-l" data-i18n="fl_date">Dátum</label>
         <input type="date" id="w-date" class="b-field-i">
       </div>
       <div class="b-field">
-        <label class="b-field-l">Váha · kg</label>
+        <label class="b-field-l" data-i18n="fl_weight_kg">Váha · kg</label>
         <input type="number" id="w-input" class="b-field-i" placeholder="75.5" min="30" max="300" step="0.1">
       </div>
       <div class="b-field">
-        <label class="b-field-l">Poznámka · voliteľné</label>
+        <label class="b-field-l" data-i18n="fl_note_opt">Poznámka · voliteľné</label>
         <input type="text" id="w-note" class="b-field-i" placeholder="Ráno nalačno...">
       </div>
       <button class="b-btn" id="w-save-btn" onclick="saveWeight()">
@@ -1237,7 +1385,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       </button>
 
       <!-- History -->
-      <div class="b-sec">História</div>
+      <div class="b-sec" data-i18n="sec_history">História</div>
       <div id="w-log"></div>
     </div>
 
@@ -1245,7 +1393,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <div id="p-hydration" class="page b-page">
       <div class="b-hdr">
         <button class="b-hdr-back" onclick="go('history')"><i class="ti ti-arrow-left"></i></button>
-        <div class="b-hdr-title">Voda</div>
+        <div class="b-hdr-title" data-i18n="hdr_water">Voda</div>
         <div class="b-hdr-spacer"></div>
       </div>
 
@@ -1269,7 +1417,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 
       <!-- Goal -->
       <div class="b-field">
-        <label class="b-field-l">Denný cieľ · ml</label>
+        <label class="b-field-l" data-i18n="fl_daily_goal">Denný cieľ · ml</label>
         <div style="display:flex;align-items:center;gap:6px">
           <input type="number" id="h-goal-input" value="2500" min="500" max="6000" step="250" style="flex:1;background:transparent;border:none;font-size:14px;font-weight:600;color:#0a0a0a;font-family:inherit;outline:none;padding:0;font-feature-settings:'tnum'" onchange="saveHydrationGoal()">
           <span style="font-size:11px;color:#999;font-weight:600">ml</span>
@@ -1277,7 +1425,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       </div>
 
       <!-- Quick add -->
-      <div class="b-sec">Rýchle pridanie</div>
+      <div class="b-sec" data-i18n="sec_quick_add">Rýchle pridanie</div>
       <div class="b-qbtn-row">
         <button class="b-qbtn" onclick="addWater(150)">150<small>ml</small></button>
         <button class="b-qbtn" onclick="addWater(250)">250<small>ml</small></button>
@@ -1301,7 +1449,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       </div>
 
       <!-- History -->
-      <div class="b-sec">Posledné záznamy</div>
+      <div class="b-sec" data-i18n="sec_recent_entries">Posledné záznamy</div>
       <div id="h-log"></div>
     </div>
 
@@ -1309,7 +1457,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <div id="detail-wrap" class="b-ovl">
       <div class="b-hdr">
         <button class="b-hdr-back" onclick="closeDetail()"><i class="ti ti-arrow-left"></i></button>
-        <div class="b-hdr-title">Detail aktivity</div>
+        <div class="b-hdr-title" data-i18n="hdr_activity_detail">Detail aktivity</div>
         <button class="b-hdr-action" onclick="delRunFromDetail()"><i class="ti ti-trash"></i></button>
       </div>
       <div id="detail-body"></div>
@@ -1319,26 +1467,26 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <div id="shoe-wrap" class="b-ovl">
       <div class="b-hdr">
         <button class="b-hdr-back" onclick="closeShoeManager()"><i class="ti ti-arrow-left"></i></button>
-        <div class="b-hdr-title">Moje topánky</div>
+        <div class="b-hdr-title" data-i18n="hdr_shoes">Moje topánky</div>
         <div class="b-hdr-spacer"></div>
       </div>
 
-      <div class="b-sec">Pridať topánku</div>
+      <div class="b-sec" data-i18n="sec_add_shoe">Pridať topánku</div>
       <div class="b-field">
-        <label class="b-field-l">Názov</label>
+        <label class="b-field-l" data-i18n="fl_name">Názov</label>
         <input type="text" id="sh-name" class="b-field-i" placeholder="napr. Nike Pegasus 40">
       </div>
       <div class="b-field">
-        <label class="b-field-l">Limit · km</label>
+        <label class="b-field-l" data-i18n="fl_limit">Limit · km</label>
         <input type="number" id="sh-limit" class="b-field-i" placeholder="600" min="100" max="2000" step="50">
       </div>
       <div class="b-field">
-        <label class="b-field-l">Už nabehané · km · voliteľné</label>
+        <label class="b-field-l" data-i18n="fl_already_run">Už nabehané · km · voliteľné</label>
         <input type="number" id="sh-init" class="b-field-i" placeholder="0" min="0" max="2000" step="1">
       </div>
       <button class="b-btn" onclick="addShoe()"><i class="ti ti-plus"></i> Pridať topánku</button>
 
-      <div class="b-sec">Moja zbierka</div>
+      <div class="b-sec" data-i18n="sec_my_collection">Moja zbierka</div>
       <div id="shoe-list"></div>
     </div>
 
@@ -1374,22 +1522,22 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <div class="nv-bnav-row">
       <button class="nv-bni active" id="nvbn-history" onclick="go('history')">
         <i class="ti ti-layout-dashboard"></i>
-        Prehľad
+        <span data-i18n="nav_overview">Prehľad</span>
       </button>
       <button class="nv-bni" id="nvbn-food" onclick="go('food')">
         <i class="ti ti-apple"></i>
-        Jedlo
+        <span data-i18n="nav_food">Jedlo</span>
       </button>
       <button class="nv-bni-fab" id="nvbn-add" onclick="go('map')">
         <div class="nv-fab-circ"><i class="ti ti-plus"></i></div>
       </button>
       <button class="nv-bni" id="nvbn-hydration" onclick="go('hydration')">
         <i class="ti ti-droplet"></i>
-        Voda
+        <span data-i18n="nav_water">Voda</span>
       </button>
       <button class="nv-bni" id="nvbn-weight" onclick="go('weight')">
         <i class="ti ti-scale"></i>
-        Váha
+        <span data-i18n="nav_weight">Váha</span>
       </button>
     </div>
   </nav></div>
@@ -1957,6 +2105,24 @@ async function loginGoogle(){
   }
 }
 
+async function loginApple(){
+  if(isCapacitor){
+    // iOS appka - otvor OAuth v in-app browseri
+    const redirectTo = 'com.trackfit.app://login-callback';
+    const authUrl = `${SB}/auth/v1/authorize?provider=apple&redirect_to=${encodeURIComponent(redirectTo)}`;
+    try{
+      const { Browser } = window.Capacitor.Plugins;
+      await Browser.open({ url: authUrl, presentationStyle: 'popover' });
+    }catch(e){
+      console.error('Browser open failed',e);
+      alert('Chyba pri otváraní prihlásenia: '+e.message);
+    }
+  }else{
+    // Web verzia - klasický redirect
+    window.location.href = `${SB}/auth/v1/authorize?provider=apple&redirect_to=${encodeURIComponent(window.location.href.split('#')[0])}`;
+  }
+}
+
 // ===== Deep link handler pre návrat z Google OAuth =====
 async function handleAuthCallback(urlString){
   try{
@@ -1995,7 +2161,7 @@ if(isCapacitor){
   }
 }
 
-function setAM(m){amode=m;document.querySelectorAll('.auth-tab').forEach((e,i)=>e.classList.toggle('active',['login','register'][i]===m));document.getElementById('abtn').textContent=m==='login'?'Prihlásiť sa':'Vytvoriť účet';document.getElementById('aerr').textContent='';}
+function setAM(m){amode=m;document.querySelectorAll('.auth-tab').forEach((e,i)=>e.classList.toggle('active',['login','register'][i]===m));document.getElementById('abtn').textContent=m==='login'?I18N.auth_tab_login[getUserLang()]:I18N.auth_submit_register[getUserLang()];document.getElementById('aerr').textContent='';}
 
 async function doAuth(){
   const email=document.getElementById('ae').value.trim(),pass=document.getElementById('ap').value;
@@ -2007,10 +2173,10 @@ async function doAuth(){
     const r=await fetch(SB+(amode==='login'?'/auth/v1/token?grant_type=password':'/auth/v1/signup'),{method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})});
     const d=await r.json();
     if(!r.ok)throw new Error(d.error_description||d.msg||'Chyba');
-    if(amode==='register'&&!d.access_token){err.style.color='var(--green)';err.textContent='Skontroluj email!';btn.disabled=false;btn.textContent='Vytvoriť účet';return;}
+    if(amode==='register'&&!d.access_token){err.style.color='var(--green)';err.textContent='Skontroluj email!';btn.disabled=false;btn.textContent=I18N.auth_submit_register[getUserLang()];return;}
     token=d.access_token;user=d.user;localStorage.setItem('rt_tok',token);localStorage.setItem('rt_usr',JSON.stringify(user));showApp();
   }catch(e){err.style.color='#dc2626';err.textContent=e.message;}
-  btn.disabled=false;btn.textContent=amode==='login'?'Prihlásiť sa':'Vytvoriť účet';
+  btn.disabled=false;btn.textContent=amode==='login'?I18N.auth_tab_login[getUserLang()]:I18N.auth_submit_register[getUserLang()];
 }
 
 async function logout(){
@@ -2027,6 +2193,7 @@ function showApp(){
   document.getElementById('id').valueAsDate=new Date();
   ['ikm','ih','im'].forEach(id=>document.getElementById(id).addEventListener('input',calcPace));
   initActDropdowns();
+  applyTranslations();
   loadRuns();
   loadHydration();
   loadWeightData();
@@ -2144,6 +2311,7 @@ function go(p){
   document.getElementById('p-'+p).classList.add('active');
   if(p==='history')renderHistory();
   if(p==='charts')renderCharts();
+  if(p==='settings')initSettingsPage();
   if(p==='map'){
     // Ensure map element je v select obrazovke (ak nebola spustená aktivita)
     const mapWrap=document.getElementById('map-area-wrap');
@@ -2350,7 +2518,7 @@ async function addRun(){
     document.getElementById('id').valueAsDate=new Date();
     toast('✓ '+actCfg(addActivity).label+' uložený!','green');
   }catch(e){toast('Chyba: '+e.message,'err');}
-  btn.disabled=false;btn.textContent='Uložiť aktivitu';
+  btn.disabled=false;btn.textContent=I18N.btn_save_activity[getUserLang()];
 }
 
 
@@ -2477,6 +2645,182 @@ function initActDropdowns(){
   const chList=document.getElementById('chart-actdd-list');
   if(chList) chList.innerHTML=actDropdownOptionsHtml('run','chart');
   setAddActivity('run');
+}
+
+/* ========================================================
+   SETTINGS — Cieľ (chudnúť/naberať/udržiavať) a Jazyk
+   Obe hodnoty sa ukladajú do localStorage (per zariadenie).
+   Cieľ využíva Bod 4 (odporúčanie stravy po aktivite).
+   Jazyk zatiaľ len ukladá preferenciu — plný preklad appky
+   (i18n) je samostatná úloha, ešte nezapojená.
+   ======================================================== */
+const GOAL_OPTIONS_I18N={lose:{sk:'Chudnúť',cs:'Hubnout',en:'Lose weight'},gain:{sk:'Naberať',cs:'Nabírat',en:'Gain weight'},maintain:{sk:'Udržiavať',cs:'Udržovat',en:'Maintain'}};
+function goalLabel(k){return GOAL_OPTIONS_I18N[k][getUserLang()]||GOAL_OPTIONS_I18N[k].sk;}
+const LANG_OPTIONS={sk:'🇸🇰 Slovenčina',cs:'🇨🇿 Čeština',en:'🇬🇧 English'};
+
+function getUserGoal(){return localStorage.getItem('rt_user_goal')||'maintain';}
+function getUserLang(){return localStorage.getItem('rt_lang')||'sk';}
+
+function toggleGoalDropdown(){
+  const sel=document.getElementById('goal-actdd-sel'),list=document.getElementById('goal-actdd-list');
+  if(!sel||!list)return;
+  const closed=list.classList.contains('closed');
+  document.getElementById('lang-actdd-list')?.classList.add('closed');
+  document.getElementById('lang-actdd-sel')?.classList.add('closed');
+  sel.classList.toggle('closed',!closed);
+  list.classList.toggle('closed',!closed);
+}
+function toggleLangDropdown(){
+  const sel=document.getElementById('lang-actdd-sel'),list=document.getElementById('lang-actdd-list');
+  if(!sel||!list)return;
+  const closed=list.classList.contains('closed');
+  document.getElementById('goal-actdd-list')?.classList.add('closed');
+  document.getElementById('goal-actdd-sel')?.classList.add('closed');
+  sel.classList.toggle('closed',!closed);
+  list.classList.toggle('closed',!closed);
+}
+function selectGoal(g){
+  localStorage.setItem('rt_user_goal',g);
+  renderGoalDropdown();
+  toggleGoalDropdown();
+}
+function selectLang(l){
+  localStorage.setItem('rt_lang',l);
+  renderLangDropdown();
+  renderGoalDropdown();
+  applyTranslations();
+  toggleLangDropdown();
+}
+function renderGoalDropdown(){
+  const g=getUserGoal();
+  const lbl=document.getElementById('goal-actdd-sel-lbl');
+  if(lbl) lbl.textContent=goalLabel(g);
+  const list=document.getElementById('goal-actdd-list');
+  if(list) list.innerHTML=Object.keys(GOAL_OPTIONS_I18N).map(k=>`<div class="nv-actdd-opt${k===g?' sel':''}" onclick="event.stopPropagation();selectGoal('${k}')">${goalLabel(k)}${k===g?'<i class="ti ti-check"></i>':''}</div>`).join('');
+}
+function renderLangDropdown(){
+  const l=getUserLang();
+  const lbl=document.getElementById('lang-actdd-sel-lbl');
+  if(lbl) lbl.textContent=LANG_OPTIONS[l];
+  const list=document.getElementById('lang-actdd-list');
+  if(list) list.innerHTML=Object.keys(LANG_OPTIONS).map(k=>`<div class="nv-actdd-opt${k===l?' sel':''}" onclick="event.stopPropagation();selectLang('${k}')">${LANG_OPTIONS[k]}${k===l?'<i class="ti ti-check"></i>':''}</div>`).join('');
+}
+function initSettingsPage(){
+  renderGoalDropdown();
+  renderLangDropdown();
+  const em=user?.email||'';
+  const emEl=document.getElementById('settings-email');
+  if(emEl) emEl.textContent=em;
+  const initEl=document.getElementById('settings-av-init');
+  if(initEl && em) initEl.textContent=em.charAt(0).toUpperCase();
+}
+
+/* ========================================================
+   I18N — preklad UI (SK/CS/EN). Pokrýva statické texty
+   označené data-i18n atribútom (navigácia, hlavičky, Nastavenia).
+   Dynamický obsah (dáta, formuláre, nutričné odporúčania)
+   zatiaľ ostáva po slovensky — to je ďalší krok, nie tento.
+   ======================================================== */
+const I18N={
+  nav_overview:{sk:'Prehľad',cs:'Přehled',en:'Overview'},
+  nav_food:{sk:'Jedlo',cs:'Jídlo',en:'Food'},
+  nav_water:{sk:'Voda',cs:'Voda',en:'Water'},
+  nav_weight:{sk:'Váha',cs:'Váha',en:'Weight'},
+  settings_title:{sk:'Nastavenia',cs:'Nastavení',en:'Settings'},
+  settings_account:{sk:'TrackFit účet',cs:'TrackFit účet',en:'TrackFit account'},
+  settings_goals_sec:{sk:'Ciele a strava',cs:'Cíle a strava',en:'Goals & nutrition'},
+  settings_goal:{sk:'Cieľ',cs:'Cíl',en:'Goal'},
+  settings_app_sec:{sk:'Appka',cs:'Aplikace',en:'App'},
+  settings_lang:{sk:'Jazyk',cs:'Jazyk',en:'Language'},
+  settings_notif:{sk:'Notifikácie',cs:'Notifikace',en:'Notifications'},
+  settings_soon:{sk:'Čoskoro',cs:'Brzy',en:'Coming soon'},
+  settings_account_sec:{sk:'Účet',cs:'Účet',en:'Account'},
+  settings_logout:{sk:'Odhlásiť sa',cs:'Odhlásit se',en:'Log out'},
+  greeting_hi:{sk:'Ahoj',cs:'Ahoj',en:'Hi'},
+  charts_title:{sk:'Grafy výkonu',cs:'Grafy výkonu',en:'Performance charts'},
+  food_title:{sk:'Doplnenie kalórií',cs:'Doplnění kalorií',en:'Refuel calories'},
+  ov_week:{sk:'Tento týždeň',cs:'Tento týden',en:'This week'},
+  ov_water:{sk:'Voda',cs:'Voda',en:'Water'},
+  ov_weight:{sk:'Váha',cs:'Váha',en:'Weight'},
+  ov_kcal:{sk:'Kcal dnes',cs:'Kcal dnes',en:'Calories today'},
+  ov_water_sub:{sk:'Klikni pre detail',cs:'Klikni pro detail',en:'Tap for details'},
+  ov_add:{sk:'Pridať',cs:'Přidat',en:'Add'},
+  ov_add_food:{sk:'Pridať jedlo',cs:'Přidat jídlo',en:'Add food'},
+  ov_streak:{sk:'Séria',cs:'Série',en:'Streak'},
+  ov_pace:{sk:'Tempo /km',cs:'Tempo /km',en:'Pace /km'},
+  ov_recent:{sk:'Posledné aktivity',cs:'Poslední aktivity',en:'Recent activities'},
+  hdr_add_activity:{sk:'Pridať aktivitu',cs:'Přidat aktivitu',en:'Add activity'},
+  hdr_weight:{sk:'Váha',cs:'Váha',en:'Weight'},
+  hdr_water:{sk:'Voda',cs:'Voda',en:'Water'},
+  hdr_activity_detail:{sk:'Detail aktivity',cs:'Detail aktivity',en:'Activity detail'},
+  hdr_shoes:{sk:'Moje topánky',cs:'Moje boty',en:'My shoes'},
+  sec_feeling:{sk:'Pocit po tréningu',cs:'Pocit po tréninku',en:'How you felt'},
+  sec_activity:{sk:'Aktivita',cs:'Aktivita',en:'Activity'},
+  sec_period:{sk:'Obdobie',cs:'Období',en:'Period'},
+  sec_diet:{sk:'Diéta',cs:'Dieta',en:'Diet'},
+  sec_allergens:{sk:'Alergény — vylúčiť',cs:'Alergeny — vyloučit',en:'Allergens — exclude'},
+  sec_food_rec:{sk:'Odporúčané jedlo',cs:'Doporučené jídlo',en:'Recommended food'},
+  sec_log_weight:{sk:'Zaznamenať váhu',cs:'Zaznamenat váhu',en:'Log weight'},
+  sec_history:{sk:'História',cs:'Historie',en:'History'},
+  sec_quick_add:{sk:'Rýchle pridanie',cs:'Rychlé přidání',en:'Quick add'},
+  sec_recent_entries:{sk:'Posledné záznamy',cs:'Poslední záznamy',en:'Recent entries'},
+  sec_add_shoe:{sk:'Pridať topánku',cs:'Přidat botu',en:'Add shoe'},
+  sec_my_collection:{sk:'Moja zbierka',cs:'Moje sbírka',en:'My collection'},
+  fl_date:{sk:'Dátum',cs:'Datum',en:'Date'},
+  fl_distance:{sk:'Vzdialenosť · km',cs:'Vzdálenost · km',en:'Distance · km'},
+  fl_hr_avg:{sk:'Priem. tep · BPM',cs:'Prům. tep · BPM',en:'Avg HR · BPM'},
+  fl_hr_max:{sk:'Max. tep · BPM',cs:'Max. tep · BPM',en:'Max HR · BPM'},
+  fl_act_time:{sk:'Čas aktivity',cs:'Čas aktivity',en:'Activity time'},
+  fl_pace:{sk:'Tempo · /km',cs:'Tempo · /km',en:'Pace · /km'},
+  fl_elev:{sk:'Prevýšenie · m',cs:'Převýšení · m',en:'Elevation · m'},
+  fl_kcal_burned:{sk:'Spálené kalórie · kcal',cs:'Spálené kalorie · kcal',en:'Calories burned · kcal'},
+  fl_note:{sk:'Poznámka',cs:'Poznámka',en:'Note'},
+  fl_height:{sk:'Výška · pre BMI',cs:'Výška · pro BMI',en:'Height · for BMI'},
+  fl_weight_kg:{sk:'Váha · kg',cs:'Váha · kg',en:'Weight · kg'},
+  fl_note_opt:{sk:'Poznámka · voliteľné',cs:'Poznámka · volitelné',en:'Note · optional'},
+  fl_daily_goal:{sk:'Denný cieľ · ml',cs:'Denní cíl · ml',en:'Daily goal · ml'},
+  fl_name:{sk:'Názov',cs:'Název',en:'Name'},
+  fl_limit:{sk:'Limit · km',cs:'Limit · km',en:'Limit · km'},
+  fl_already_run:{sk:'Už nabehané · km · voliteľné',cs:'Už naběháno · km · volitelné',en:'Already run · km · optional'},
+  fl_email:{sk:'Email',cs:'Email',en:'Email'},
+  fl_password:{sk:'Heslo',cs:'Heslo',en:'Password'},
+  auth_google:{sk:'Pokračovať cez Google',cs:'Pokračovat přes Google',en:'Continue with Google'},
+  auth_apple:{sk:'Pokračovať cez Apple',cs:'Pokračovat přes Apple',en:'Continue with Apple'},
+  auth_or_email:{sk:'alebo emailom',cs:'nebo emailem',en:'or by email'},
+  auth_tab_login:{sk:'Prihlásiť sa',cs:'Přihlásit se',en:'Log in'},
+  auth_tab_register:{sk:'Registrovať',cs:'Registrovat',en:'Register'},
+  btn_save_activity:{sk:'Uložiť aktivitu',cs:'Uložit aktivitu',en:'Save activity'},
+  auth_submit_register:{sk:'Vytvoriť účet',cs:'Vytvořit účet',en:'Create account'}
+};
+function applyTranslations(){
+  const lang=getUserLang();
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const entry=I18N[el.getAttribute('data-i18n')];
+    if(entry && entry[lang]) el.textContent=entry[lang];
+  });
+  // Auth tlačidlo (Prihlásiť sa / Vytvoriť účet) sa neriadi data-i18n, lebo ho prepína JS podľa amode
+  const abtn=document.getElementById('abtn');
+  if(abtn) abtn.textContent=amode==='login'?I18N.auth_tab_login[lang]:I18N.auth_submit_register[lang];
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',applyTranslations);
+}else{
+  applyTranslations();
+}
+
+const I18N_DYN={
+  refill:{sk:l=>`Doplň ${l} L`,cs:l=>`Doplň ${l} l`,en:l=>`Add ${l} L`},
+  goal_done:{sk:'Cieľ splnený ✓',cs:'Cíl splněn ✓',en:'Goal reached ✓'},
+  remain_kcal:{sk:k=>`Ostáva ${k} kcal`,cs:k=>`Zbývá ${k} kcal`,en:k=>`${k} kcal left`},
+  kcal_goal_done:{sk:'Cieľ dosiahnutý',cs:'Cíl dosažen',en:'Goal reached'},
+  no_activities:{sk:'Zatiaľ žiadne aktivity',cs:'Zatím žádné aktivity',en:'No activities yet'}
+};
+function tDyn(key,arg){
+  const lang=getUserLang();
+  const entry=I18N_DYN[key];
+  if(!entry)return '';
+  const v=entry[lang]||entry.sk;
+  return typeof v==='function'?v(arg):v;
 }
 
 
@@ -2712,11 +3056,13 @@ async function stopRun(){
     };
     const s=await api('runs',{method:'POST',body:JSON.stringify(payload)});
     runs.unshift(s[0]);
-    closeOverlay();
     window._paused=false;window._pausedMs=0;
     const valMsg=!hasMap?elMin+' min':lDist.toFixed(2)+' km';
-    toast('✓ '+cfg.label+' — '+valMsg+' · '+kcal+' kcal','green');
-    go('history');
+    showDoneAnimation(()=>{
+      closeOverlay();
+      toast('✓ '+cfg.label+' — '+valMsg+' · '+kcal+' kcal','green');
+      showNutritionSuggestion(kcal, cfg.label);
+    });
   }catch(e){toast('Chyba: '+e.message,'err');}
 }
 
@@ -2820,7 +3166,7 @@ function renderHistory(){
     waterEl.innerHTML=`${waterL}<small>/${waterGoal}L</small>`;
     if(waterSubEl){
       const remaining=Math.max(0,waterGoal-parseFloat(waterL));
-      waterSubEl.textContent=remaining>0?`Doplň ${remaining.toFixed(1)} L`:'Cieľ splnený ✓';
+      waterSubEl.textContent=remaining>0?tDyn('refill',remaining.toFixed(1)):tDyn('goal_done');
     }
   }
 
@@ -2855,7 +3201,7 @@ function renderHistory(){
     kcalEl.innerHTML=`${todayKcal}<small>/${kcalGoal}</small>`;
     if(kcalSubEl){
       const remaining=kcalGoal-todayKcal;
-      kcalSubEl.textContent=remaining>0?`Ostáva ${remaining} kcal`:'Cieľ dosiahnutý';
+      kcalSubEl.textContent=remaining>0?tDyn('remain_kcal',remaining):tDyn('kcal_goal_done');
     }
   }
 
@@ -2890,7 +3236,7 @@ function renderHistory(){
 
   // === POSLEDNÉ AKTIVITY (Bento style) ===
   if(!filtered.length){
-    el.innerHTML='<div class="b-empty"><div class="b-empty-ico">'+actSvg(act)+'</div><p>Zatiaľ žiadne aktivity</p></div>';
+    el.innerHTML='<div class="b-empty"><div class="b-empty-ico">'+actSvg(act)+'</div><p>'+tDyn('no_activities')+'</p></div>';
     return;
   }
   el.innerHTML=filtered.slice(0,30).map(r=>{
